@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Local runtime data — never commit credentials
+servers.json
+known_hosts.json
+audit.jsonl
+status-cache.json
+.deploy/
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+coverage/
+tmp/

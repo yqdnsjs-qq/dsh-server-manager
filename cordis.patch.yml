@@ -1,0 +1,24 @@
+# Bundle patch: one loader row for the host half and the browser half.
+#
+# Every key below also has a code-side default in src/manager.js, so the plugin
+# still works when this file is not merged (for example when it is loaded as a
+# plain Cordis plugin). A patch replaces the targeted row's whole `config`, so
+# restate every key you want to keep.
+#
+# - dataDir:        where servers.json / known_hosts.json / audit.jsonl live.
+#                   Default: $DSH_HOME/server-manager (~/.dsh/server-manager).
+# - commandTimeoutMs: default timeout for one remote command.
+# - maxOutputBytes: how many bytes of stdout/stderr a single command may return.
+# - idleTimeoutMs:  close an unused SSH connection after this long.
+# - audit:          append every mutating remote action to audit.jsonl.
+# - panel:          register the right-sidebar server panel.
+- insert:
+    - id: server-manager
+      name: dsh-server-manager
+      config:
+        dataDir: null
+        commandTimeoutMs: 60000
+        maxOutputBytes: 524288
+        idleTimeoutMs: 60000
+        audit: true
+        panel: true

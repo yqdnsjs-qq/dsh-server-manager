@@ -1,0 +1,82 @@
+{
+  "name": "dsh-server-manager",
+  "version": "1.0.0",
+  "description": "Multi-server operations for DeepSeek Harness: live status, password/key/SSH-agent login, agent-callable exec, file transfer, release deploys and rollbacks.",
+  "type": "module",
+  "license": "MIT",
+  "author": "yqdnsjs-qq",
+  "icon": "icon.png",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./client": "./client/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "client",
+    "icon.png",
+    "docs",
+    "examples",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "ssh",
+    "server",
+    "devops",
+    "deploy",
+    "sftp",
+    "remote"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:in-process": "node --test --test-isolation=none",
+    "check": "node --check src/index.js && node --check client/client.js",
+    "build:vendor": "node scripts/build-vendor.mjs",
+    "prepack": "npm run build:vendor"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10",
+    "ssh2": "1.17.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale"
+      ]
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.2.1-rc.5": "compatible",
+        "0.2.2-rc.1": "compatible"
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yqdnsjs-qq/dsh-server-manager.git"
+  },
+  "homepage": "https://github.com/yqdnsjs-qq/dsh-server-manager#readme",
+  "bugs": {
+    "url": "https://github.com/yqdnsjs-qq/dsh-server-manager/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

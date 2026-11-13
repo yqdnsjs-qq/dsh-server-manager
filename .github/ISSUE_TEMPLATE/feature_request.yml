@@ -1,0 +1,41 @@
+name: Feature request
+description: Suggest a capability or scenario the plugin should support
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: Describe the real task, not only the proposed API.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like the plugin to do?
+      description: Tool shape, panel behaviour, configuration fields — rough is fine.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+      description: Existing tools, scripts, or workarounds.
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - New tool
+        - Existing tool behaviour
+        - Panel UI
+        - Configuration / security policy
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety
+      options:
+        - label: This request does not require sending credentials to a model.
+          required: true
