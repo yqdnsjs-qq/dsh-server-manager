@@ -34,6 +34,9 @@ import {
   parseOnePanelOutput,
 } from './onepanel.js';
 import { buildPveRefreshScript, buildPveScript, parsePveOutput } from './pve.js';
+import { probeQnap } from './qnap.js';
+import { probeSynology } from './synology.js';
+import { probeFnos } from './fnos.js';
 import { SshError, SshPool } from './ssh.js';
 import { StatusBook } from './status.js';
 import { collectSecretValues, loadEnvFile, redactText, resolveServerSecrets, setSecretVault } from './secrets.js';
@@ -42,6 +45,12 @@ import { SecretVault } from './vault.js';
 function actorOf(exec) {
   const agent = exec && exec.agent;
   return agent?.session?.header?.id ?? agent?.session?.id ?? agent?.id ?? agent?.name ?? 'agent';
+}
+
+function requireSsh(server, feature) {
+  if ((server.transport ?? 'ssh') !== 'ssh') {
+    throw new ConfigError(`${feature} is not available over the ${server.transport} transport`);
+  }
 }
 
 /**
@@ -198,6 +207,32 @@ export class ServerManager {
   async testConnection(ref, { signal } = {}) {
     const server = await this.server(ref);
     const startedAt = Date.now();
+    if ((server.transport ?? 'ssh') !== 'ssh') {
+      try {
+        const timeoutMs = Math.min(25_000, server.commandTimeoutMs);
+        const status = server.transport === 'qnap'
+          ? await probeQnap(server, { timeoutMs, signal })
+          : server.transport === 'synology'
+            ? await probeSynology(server, { timeoutMs, signal })
+            : await probeFnos(server, { timeoutMs, signal });
+        const label = server.transport === 'qnap' ? 'QTS web UI' : server.transport === 'synology' ? 'DSM web API' : 'fnOS web UI';
+        return {
+          server,
+          ok: status.reachable,
+          latencyMs: Date.now() - startedAt,
+          details: `${label} replied for ${status.system?.hostname ?? server.host} (${status.system?.os ?? server.transport})`,
+          fingerprint: null,
+        };
+      } catch (error) {
+        return {
+          server,
+          ok: false,
+          latencyMs: Date.now() - startedAt,
+          details: error.message,
+          fingerprint: null,
+        };
+      }
+    }
     try {
       const session = await this.pool.session(server.id);
       const result = await session.exec('printf %s ok; uname -s 2>/dev/null', {
@@ -244,6 +279,7 @@ export class ServerManager {
    */
   async exec(ref, command, options = {}) {
     const server = await this.server(ref);
+    requireSsh(server, 'shell execution');
     const verdict = checkCommand(server, command);
     if (!verdict.allowed) throw new PolicyError(verdict.reason);
     const startedAt = Date.now();
@@ -284,6 +320,7 @@ export class ServerManager {
 
   async transfer(ref, { direction, localPath, remotePath, signal } = {}) {
     const server = await this.server(ref);
+    requireSsh(server, 'file transfer');
     const capability = checkCapability(server, 'transfer');
     if (!capability.allowed) throw new PolicyError(capability.reason);
     if (!localPath || !remotePath) throw new ConfigError('localPath and remotePath are required');
@@ -328,6 +365,7 @@ export class ServerManager {
     for (const server of servers) {
       const status = results.get(server.id);
       if (!status || status.reachable === false || status.docker?.available !== false) continue;
+      if ((server.transport ?? 'ssh') !== 'ssh') continue;
       if (!this.canSudo(server)) continue;
       const { result } = await this.runDocker(
         server,
@@ -428,6 +466,7 @@ export class ServerManager {
    */
   async docker(ref, options = {}) {
     const server = await this.server(ref);
+    requireSsh(server, 'docker');
     const action = String(options.action ?? 'list').toLowerCase().replace(/^ps$/, 'list');
     if (!DOCKER_ACTIONS.includes(action)) {
       throw new ConfigError(`unknown docker action "${action}"; expected ${DOCKER_ACTIONS.join(', ')}`);
@@ -569,6 +608,7 @@ export class ServerManager {
    */
   async pve(ref, options = {}) {
     const server = await this.server(ref);
+    requireSsh(server, 'Proxmox VE');
     const cached = this.pveCache.get(server.id);
     if (!options.refresh && cached && Date.now() - cached.at < 5_000) {
       return { server, data: cached.data, result: null, sudo: cached.sudo };
@@ -612,6 +652,7 @@ export class ServerManager {
   /** Refresh the PVE apt lists, then return the updated inventory. */
   async refreshPveUpdates(ref, options = {}) {
     const server = await this.server(ref);
+    requireSsh(server, 'Proxmox VE');
     const capability = checkCapability(server, 'service');
     if (!capability.allowed) throw new PolicyError(capability.reason);
 
@@ -680,6 +721,7 @@ export class ServerManager {
    */
   async onepanel(ref, options = {}) {
     const server = await this.server(ref);
+    requireSsh(server, '1Panel');
     const cached = this.onepanelCache.get(server.id);
     if (!options.refresh && cached && Date.now() - cached.at < 60_000) {
       return { server, data: cached.data, result: null, sudo: cached.sudo };
@@ -727,6 +769,7 @@ export class ServerManager {
 
   async deploy(ref, options, signal) {
     const server = await this.server(ref);
+    requireSsh(server, 'deployment');
     const report = await this.deployer.deploy(server, options, signal);
     this.audit.record({
       action: 'deploy',
@@ -742,6 +785,7 @@ export class ServerManager {
 
   async rollback(ref, options, signal) {
     const server = await this.server(ref);
+    requireSsh(server, 'rollback');
     const report = await this.deployer.rollback(server, options, signal);
     this.audit.record({
       action: 'rollback',

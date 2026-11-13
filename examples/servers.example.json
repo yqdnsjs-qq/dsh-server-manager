@@ -46,6 +46,20 @@
       }
     },
     {
+      "id": "nas-01",
+      "name": "QNAP TS-453 Pro",
+      "host": "192.0.2.28",
+      "port": 88,
+      "transport": "qnap",
+      "baseUrl": "http://192.0.2.28:88",
+      "username": "admin",
+      "auth": "password",
+      "password": "vault:nas-01.password",
+      "group": "NAS",
+      "tags": ["qnap", "nas"],
+      "notes": "QTS web login, read-only; Container Station control is not exposed"
+    },
+    {
       "id": "prod-db",
       "name": "Production database",
       "host": "10.0.0.20",

@@ -1,6 +1,9 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { buildProbeScript, parseProbe, summarizeStatus } from './probe.js';
+import { probeQnap } from './qnap.js';
+import { probeSynology } from './synology.js';
+import { probeFnos } from './fnos.js';
 
 /**
  * Last-known status per server.
@@ -87,6 +90,16 @@ export class StatusBook {
       server.commandTimeoutMs ?? 60_000,
     );
     try {
+      if ((server.transport ?? 'ssh') !== 'ssh') {
+        const status = server.transport === 'qnap'
+          ? await probeQnap(server, { timeoutMs: timeout, signal })
+          : server.transport === 'synology'
+            ? await probeSynology(server, { timeoutMs: timeout, signal })
+            : await probeFnos(server, { timeoutMs: timeout, signal });
+        this.cache[server.id] = status;
+        this.persist();
+        return status;
+      }
       const result = await this.pool.exec(server.id, buildProbeScript({ sections }), {
         timeoutMs: timeout,
         maxBytes: maxBytes ?? 256 * 1024,

@@ -122,12 +122,12 @@ export function registerRoutes(ctx, manager) {
           return;
         }
         try {
-          const icon = readFileSync(new URL('../icon.png', import.meta.url));
+          const data = readFileSync(new URL('../icon.png', import.meta.url));
           res.statusCode = 200;
           res.setHeader('content-type', 'image/png');
           res.setHeader('cache-control', 'public, max-age=86400');
-          res.setHeader('content-length', icon.length);
-          res.end(icon);
+          res.setHeader('content-length', data.length);
+          res.end(data);
         } catch {
           json(res, 404, { error: 'icon not found' });
         }

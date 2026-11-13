@@ -82,13 +82,15 @@ a headless profile).
 | `src/vendor/ssh2.js` | Generated ESM bundle of `ssh2` and its dependencies (see below). |
 | `src/hostkeys.js` | TOFU trust store and `SHA256:` labels. |
 | `src/probe.js` | One-shot shell script and parser for system metrics. |
-| `src/status.js` | Probe orchestration, cached status, bounded concurrency. |
+| `src/qnap.js` | QTS web connector: `authLogin.cgi` session, sysinfo/CPU/memory/volume probe; no SSH. |
+| `src/synology.js` | DSM web connector: `SYNO.API.Auth` session, system/CPU/memory/volume probe; no SSH. |
+| `src/fnos.js` | fnOS encrypted WebSocket connector: system, CPU, memory, network, volumes, Docker, apps and system updates. |
+| `src/status.js` | Probe orchestration, cached status, bounded concurrency; dispatches NAS probes to `src/qnap.js`, `src/synology.js` or `src/fnos.js`. |
 | `src/tar.js` | Streaming ustar + gzip writer with glob exclusions. |
 | `src/deploy.js` | Release/direct deploy, hooks, health, prune, manifest, rollback. |
 | `src/format.js` | Markdown rendering for tool results. |
-| `src/routes.js` | Authenticated JSON API for the panel. |
+| `src/routes.js` | Authenticated JSON API for the panel, including `/logo` (the bundled 512px icon). |
 | `src/tools.js` | Tool schemas and handlers. |
-| `icon.png` | Plugin logo used by DSH and the dashboard. |
 
 ## A tool call
 
@@ -237,12 +239,71 @@ action (`POST /api/server-manager/pve` with `action: "refresh-updates"`) that ru
 `pvesh create /nodes/<node>/apt/update` with a 180-second timeout. It is never part of the 30-second
 poll, because `apt update` writes package lists and takes time.
 
+## NAS web transports
+
+A NAS entry sets `transport: "qnap"`, `"synology"` or `"fnos"`. QNAP, Synology
+and fnOS share the same read-only status shape and the same rule: `StatusBook`
+calls their web probe directly, and `ServerManager.requireSsh()` rejects shell,
+transfer, deploy, Docker, PVE and 1Panel operations. Passwords follow the normal
+vault path.
+
+### QNAP
+
+`src/qnap.js` logs in with
+`POST /cgi-bin/authLogin.cgi` (`user` plus base64 `pwd`) and keeps the returned
+`authSid` in memory as the `NAS_SID` cookie. It then reads:
+
+- `sysinfoReq.cgi?subfunc=sysinfo&hd=no&multi_cpu=1` for model, firmware,
+  hostname and architecture (no `sid` query parameter — this endpoint reads the
+  cookie only);
+- `manaRequest.cgi?subfunc=sysmonitor...&sid=<sid>` for CPU, memory, swap and
+  uptime;
+- `chartReq.cgi?chart_func=disk_usage&disk_select=all&include=all&sid=<sid>`
+  for volume capacity.
+
+The result is mapped into the same status shape as the SSH probe, so the deck’s
+counters, health ring and history keep working. `StatusBook` calls
+`probeQnap()` directly for these servers; `ServerManager.requireSsh()` rejects
+shell, transfer, deploy, Docker, PVE and 1Panel operations on a QNAP entry.
+Passwords follow the normal vault path. Container Station is intentionally not
+wired in yet: its v3 API requires a Bearer token delivered over a WebSocket, so
+there is no stable server-to-server login path without reverse-engineering the
+web client.
+
+### Synology
+
+`src/synology.js` signs in with `SYNO.API.Auth` version 6 (`format=cookie`) and
+keeps the returned `sid` in memory as the `id` cookie, defaulting to HTTP port
+5000. It then reads:
+
+- `SYNO.Core.System` version 3 `info` for model, DSM version, serial, CPU model,
+  core count, RAM and uptime;
+- `SYNO.Core.System.Utilization` version 1 `get` for CPU and memory percentages;
+- `SYNO.Storage.CGI.Storage` version 1 `load_info` for every volume plus the
+  physical disk list.
+
+Volumes become the deck’s disks; `synology.physicalDisks` keeps the bay-level
+detail. The values are mapped into the same status shape as SSH so counters,
+history and the health ring work unchanged.
+
+### fnOS
+
+`src/fnos.js` speaks the fnOS main WebSocket (`ws://host:5666/websocket?type=main`).
+It fetches the RSA public key (`util.crypto.getRSAPub`), negotiates a 32-byte
+AES-256-CBC session key (the RSA copy uses PKCS#1 v1.5), sends `user.login` as an
+`encrypted` frame, and signs every later RPC with HMAC-SHA256. The HMAC key is
+the raw bytes obtained by decrypting the login response's `secret` with the same
+AES key/IV. It maps `resmon.cpu/mem/net`, `stor.listStor`, `dockerList`,
+`appStoreList` and `updatemgr.status.get` into the shared status shape, adding
+`fnos.version/latestVersion/updateAvailable/apps`. The connector is read-only:
+Container Station and app-store mutations are not attempted.
+
 ## Client half
 
 `client/client.js` is plain ESM consumed by the DSH web module loader (`window.__ModuleLoader__`).
 It registers a first-class left-sidebar entry and a full main-pane page:
 
-- an icon in the `sidebar.panellist` list slot (`id: "server-manager"`, `order: 6`), labelled
+- the bundled `icon.png` in the `sidebar.panellist` list slot (`id: "server-manager"`, `order: 6`), labelled
   **服务器监控管理** (Server Deck) — the same rail that hosts Plugins, Automation tasks and
   Self-media workspace;
 - a `main` keyed-slot page (`key: "server-manager"`) rendered as `Dashboard`.

@@ -17,6 +17,9 @@ function levelBadge(status) {
 }
 
 function authLabel(server) {
+  if (server.transport === 'qnap') return 'QTS web';
+  if (server.transport === 'synology') return 'DSM web';
+  if (server.transport === 'fnos') return 'fnOS web';
   if (server.auth === 'key') return 'key';
   if (server.auth === 'agent') return 'ssh-agent';
   return 'password';
@@ -46,7 +49,8 @@ export function formatServerList(input) {
     const status = summary ? summary.summary : 'never checked';
     const level = summary ? summary.level : 'unknown';
     const policy = server.policy?.readOnly ? 'read-only' : 'read-write';
-    return `| ${server.id} | ${server.name} | ${server.username}@${server.host}:${server.port} | ${authLabel(server)} | ${policy} | ${level}: ${status} |`;
+    const auth = authLabel(server);
+    return `| ${server.id} | ${server.name} | ${server.username}@${server.host}:${server.port} | ${auth} | ${policy} | ${level}: ${status} |`;
   });
 
   const lines = [
@@ -85,9 +89,9 @@ export function formatStatus(entries) {
       `## ${server.name} (${server.id}) — ${levelBadge(status)}`,
       [
         `target: ${server.username}@${server.host}:${server.port}`,
-        `auth ${authLabel(server)}`,
+        server.transport !== 'ssh' ? `${authLabel(server)} · read-only` : `auth ${authLabel(server)}`,
         status.system?.os || status.platform || 'unknown OS',
-        `${status.load?.cores ?? '?'} cores`,
+        status.load?.cores ? `${status.load.cores} cores` : null,
         `${status.latencyMs ?? '?'} ms`,
       ].filter(Boolean).join(' · '),
       `checked: ${status.checkedAt}`,
@@ -96,13 +100,20 @@ export function formatStatus(entries) {
       const extra = [status.system.ip, status.system.kernel, status.system.timezone].filter(Boolean).join(' · ');
       lines.push(`host: ${status.system.hostname}${status.system.fqdn && status.system.fqdn !== status.system.hostname ? ` (${status.system.fqdn})` : ''}${extra ? ` · ${extra}` : ''}`);
     }
+    if (server.transport === 'fnos' && status.fnos) {
+      const fnos = status.fnos;
+      lines.push(`fnOS: ${fnos.version || '?'}${fnos.latestVersion ? ` (latest ${fnos.latestVersion})` : ''}${fnos.updateAvailable ? ' · update available' : ''}${fnos.appCount !== undefined ? ` · ${fnos.appCount} apps` : ''}`);
+    }
     if (status.uptimeSeconds !== null && status.uptimeSeconds !== undefined) {
-      lines.push(`uptime: ${formatUptime(status.uptimeSeconds)} · users ${status.system?.loggedInUsers ?? '?'}`);
+      const users = status.system?.loggedInUsers;
+      lines.push(`uptime: ${formatUptime(status.uptimeSeconds)}${users !== null && users !== undefined ? ` · users ${users}` : ''}`);
     }
     if (status.load?.average?.length) {
       const load = status.load.average.map(value => Number(value).toFixed(2)).join(' / ');
       const cpu = status.load.percent !== null && status.load.percent !== undefined ? ` · cpu ${status.load.percent}%` : '';
       lines.push(`load: ${load}${cpu}`);
+    } else if (status.load?.percent !== null && status.load?.percent !== undefined) {
+      lines.push(`cpu: ${status.load.percent}%${status.load.cores ? ` · ${status.load.cores} cores` : ''}`);
     }
     if (status.memory) {
       const swap = status.memory.swapTotalMb > 0
@@ -117,9 +128,9 @@ export function formatStatus(entries) {
         .join(' · ');
       lines.push(`disks: ${disks}`);
     }
-    if (status.docker?.available) {
+    if (status.platform !== 'qnap' && status.docker?.available) {
       lines.push(`docker: ${status.docker.running} running${status.docker.containers.length > 0 ? ` · ${status.docker.containers.slice(0, 6).map(item => item.name).join(', ')}${status.docker.containers.length > 6 ? ', …' : ''}` : ''}`);
-    } else if (status.docker?.error) {
+    } else if (status.platform !== 'qnap' && status.docker?.error) {
       lines.push(`docker: unavailable (${status.docker.error})`);
     }
     if (status.systemd?.available) {

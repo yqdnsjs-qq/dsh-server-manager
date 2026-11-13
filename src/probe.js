@@ -305,6 +305,7 @@ export function summarizeStatus(status) {
   if (status.uptimeSeconds !== null && status.uptimeSeconds !== undefined) {
     bits.push(`up ${formatUptime(status.uptimeSeconds)}`);
   }
+  if (bits.length === 0 && status.platform === 'fnos') bits.push('web console only');
   return { level: status.level ?? 'ok', summary: bits.join(' · ') };
 }
 

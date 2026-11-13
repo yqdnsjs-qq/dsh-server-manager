@@ -183,11 +183,29 @@ or release pruning runs for this layout.
 `server` accepts the fields from [configuration](configuration.md), plus flat policy shortcuts:
 `readOnly`, `allowDangerous`, `allowCommands`, `denyCommands`, and `hostKeyPolicy`.
 
+Set `transport` to `qnap`, `synology` or `fnos` (and optionally `baseUrl`) to
+add a NAS over its web UI instead of SSH. All web transports are forced
+read-only and reject `server_exec`, `server_transfer`, `server_deploy`,
+`server_docker`, PVE and 1Panel operations. Synology defaults to port 5000 and
+fnOS to 5666; QNAP defaults to 88.
+
 Examples:
 
 ```json
 {"action":"add","server":{"name":"staging","host":"192.0.2.5","username":"ubuntu",
   "auth":"key","privateKeyPath":"~/.ssh/id_ed25519","group":"staging","readOnly":true}}
+```
+
+```json
+{"action":"add","server":{"name":"QNAP TS-453 Pro","host":"203.0.113.28","port":88,
+  "transport":"qnap","username":"admin","auth":"password","password":"vault:nas.password",
+  "baseUrl":"http://203.0.113.28:88","group":"NAS","readOnly":true}}
+```
+
+```json
+{"action":"add","server":{"name":"Synology DS3622xs+","host":"203.0.113.26","port":5000,
+  "transport":"synology","username":"admin","auth":"password","password":"vault:dsm.password",
+  "baseUrl":"http://203.0.113.26:5000","group":"NAS","readOnly":true}}
 ```
 
 ```json

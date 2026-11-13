@@ -72,9 +72,11 @@ server-manager/
 | --- | --- | --- | --- |
 | `id` | string | slug of name/host | Stable identifier; safe characters `[a-z0-9._-]`. |
 | `name` | string | `id` | Display name in the panel and tool output. |
+| `transport` | `ssh` \| `qnap` \| `synology` \| `fnos` | `ssh` | `qnap`/`synology`/`fnos` use the NAS web UI instead of SSH. |
+| `baseUrl` | string | — | Optional NAS base URL, e.g. `http://203.0.113.28:88`; defaults to `http(s)://host:port`. |
 | `host` | string | — | Required. Also accepts `user@host:port` and `ssh://user@host:port`. |
-| `port` | number | 22 | 1–65535. |
-| `username` | string | `root` | — |
+| `port` | number | 22 / 88 / 5000 / 5666 | SSH / QNAP / Synology / fnOS default. |
+| `username` | string | `root` (SSH) / `admin` (NAS) | NAS admin account for web transports. |
 | `auth` | `password` \| `key` \| `agent` | inferred | Inferred from `password`, `privateKeyPath`, or `agent`. |
 | `password` | string | — | Secret reference (see below). Required for `auth=password`. |
 | `privateKeyPath` | string | — | Required for `auth=key`; `~` is expanded. |
@@ -90,6 +92,40 @@ server-manager/
 | `commandTimeoutMs` | number | 60000 | 1s–24h. |
 | `maxOutputBytes` | number | 524288 | Per command, stdout and stderr each. |
 | `algorithms` | object | — | Raw `ssh2` algorithm overrides for legacy servers. |
+
+### NAS web transports
+
+Set `"transport": "qnap"`, `"synology"` or `"fnos"` to monitor a NAS through its
+web UI. All three are read-only and reject shell, transfer, deploy, Docker, PVE
+and 1Panel operations. QNAP and Synology return full system/volume metrics.
+fnOS signs in through its encrypted WebSocket session and returns CPU, memory,
+network, storage, Docker containers, installed apps and system-update state.
+
+QNAP example:
+
+```json
+{
+  "id": "nas-01",
+  "name": "QNAP TS-453 Pro",
+  "host": "203.0.113.28",
+  "port": 88,
+  "transport": "qnap",
+  "username": "admin",
+  "auth": "password",
+  "password": "vault:nas-01.password",
+  "baseUrl": "http://203.0.113.28:88",
+  "readOnly": true
+}
+```
+
+The QNAP connector logs in through `/cgi-bin/authLogin.cgi`, stores the
+`NAS_SID` cookie only in memory, and reads system information, CPU, memory and
+volume capacity. Synology uses `SYNO.API.Auth` (session cookie kept in memory)
+and `SYNO.Core.System`/`Utilization`/`Storage.CGI.Storage`; it defaults to port
+5000. fnOS connects to `ws://host:5666/websocket?type=main` and performs its
+encrypted WebSocket login; its console link opens the same origin.
+Accounts with mandatory two-step verification are not supported by the QNAP or
+Synology connectors yet.
 
 ### Secret references
 

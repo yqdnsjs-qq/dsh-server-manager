@@ -1,6 +1,6 @@
 # dsh-server-manager
 
-<p align="center"><img src="icon.png" width="112" alt="dsh-server-manager logo"></p>
+<p align="center"><img src="icon.png" width="96" alt="dsh-server-manager"></p>
 
 > Multi-server operations for [DeepSeek Harness](https://www.deepseek.com/harness/): let the agent see, log into, operate and deploy to your servers — with the same connection the panel uses.
 
@@ -11,7 +11,7 @@
 - **Host half** — registers ten `server_*` tools for the agent (list, status, exec, transfer, logs, services, Docker, deploy, rollback, config) and an authenticated HTTP API for the dashboard.
 - **Browser half** — a first-class **Server Deck** page (labeled **服务器监控管理** in the sidebar) in DSH's left sidebar: fleet stats, cluster pulse, health ring, capacity trend, resource gauges, the server list, Docker containers, Proxmox VE guests, add/edit forms and a command console.
 
-Everything runs locally: the plugin speaks SSH directly (`ssh2`), keeps credentials on your machine, and never sends them to a model.
+Everything runs locally: the plugin speaks SSH (`ssh2`) for servers and the native web APIs for NAS boxes, keeps credentials on your machine, and never sends them to a model.
 
 ## Why
 
@@ -24,6 +24,7 @@ An agent that can write a project should be able to ship it. This plugin closes 
 
 No CI, no pipeline YAML, no copy-pasting `scp` commands.
 
+
 ## Features
 
 - **Many servers, one deck** — fleet counters, cluster health, capacity trend and per-server cards; probe all with one click.
@@ -33,6 +34,7 @@ No CI, no pipeline YAML, no copy-pasting `scp` commands.
 - **1Panel aware, automatically** — detects 1Panel on every server (version, port, managed apps/containers, catalog updates) and links to its web UI; no per-server opt-in. The deck works with or without it.
 - **Proxmox VE aware** — read-only VM/CT inventory with state, CPU, memory, disk and uptime, plus node and storage capacity and a one-click jump to the PVE console. Start/stop stays in PVE itself.
 - **PVE update alerts** — reads the cached apt update lists per node, shows pending packages, security count and last check time, and offers an explicit “check updates” action that triggers `pvesh create …/apt/update` once.
+- **NAS over the web UI** — read-only connectors for QNAP QTS, Synology DSM and fnOS. All three sign in with the NAS admin account and expose CPU, memory, uptime and every volume (with a volume switcher); fnOS also reads network, Docker containers, installed apps and system-update state through its encrypted WebSocket API. No SSH required.
 - **1Panel app-store board** — reads 1Panel’s local app database (read-only, with `sudo` fallback) and lists every installed app with current/latest version, update flag and container status. It never calls the 1Panel API or upgrades an app by itself.
 - **Agent-callable shell** — multi-line scripts over `bash -s`; exit code, stdout, stderr and duration come back. Optional `sudo -S`.
 - **Deploys with releases** — atomic-ish `current` symlink, kept releases, local build step, deploy hooks, HTTP or command health checks, deploy manifests.
@@ -178,4 +180,4 @@ Tested against the DSH desktop `0.2.2-rc.x` line on Windows 11 with an Ubuntu 24
 
 [MIT](LICENSE) © dsh-server-manager contributors
 
-Repository: [github.com/yqdnsjs-qq/dsh-server-manager](https://github.com/yqdnsjs-qq/dsh-server-manager).
+> Before publishing, replace the `OWNER` placeholder in `package.json`, README and docs with your GitHub account — see [RELEASING.md](RELEASING.md).

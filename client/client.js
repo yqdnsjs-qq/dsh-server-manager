@@ -127,6 +127,28 @@ window.__ModuleLoader__.load({
       "detail.duration": "耗时 {ms} ms",
       "detail.runHint": "命令以登录用户执行；只读策略会拦截写操作，危险命令会被拒绝。",
       "detail.hostKey": "主机密钥",
+      "detail.transport": "通道",
+      "detail.transportSsh": "SSH",
+      "detail.transportQnap": "QTS 网页",
+      "detail.transportSynology": "群晖 DSM 网页",
+      "detail.transportFnos": "飞牛 fnOS 网页",
+      "detail.openQts": "打开 QTS 控制台",
+      "detail.openDsm": "打开 DSM 控制台",
+      "detail.openFnos": "打开 fnOS 控制台",
+      "detail.qnapReadOnly": "NAS 为只读接入，不执行 shell。",
+      "detail.webReadOnly": "NAS 为只读监控接入，不执行 shell。",
+      "detail.fnosStatus": "fnOS 系统状态",
+      "detail.fnosVersion": "系统版本",
+      "detail.fnosLatest": "最新版本",
+      "detail.fnosNetwork": "网络",
+      "detail.fnosUpToDate": "已是最新",
+      "detail.fnosUpdateAvailable": "有可用更新",
+      "detail.fnosUpdateHint": "请到 fnOS 控制台执行系统更新。",
+      "detail.fnosApps": "应用",
+      "detail.fnosAppStatus": "状态",
+      "detail.fnosOpenApp": "打开",
+      "detail.fnosNoApps": "没有已安装应用",
+      "detail.fnosUpdateLink": "打开 fnOS 更新",
       "detail.trusted": "已记录",
       "detail.untrusted": "未记录",
       "detail.forgetHint": "改动过服务器或重装系统后，再忘记旧指纹。",
@@ -177,6 +199,13 @@ window.__ModuleLoader__.load({
       "form.authPassword": "密码",
       "form.authKey": "私钥",
       "form.authAgent": "SSH Agent",
+      "form.transport": "连接方式",
+      "form.transportSsh": "SSH（Linux / PVE）",
+      "form.transportQnap": "QNAP QTS 网页",
+      "form.transportSynology": "群晖 DSM 网页",
+      "form.transportFnos": "飞牛 fnOS 网页",
+      "form.baseUrl": "网页地址",
+      "form.baseUrlHint": "可选；例如 http://203.0.113.28:88。留空按主机和端口拼。",
       "form.required": "必填",
       "settings.title": "设置",
       "settings.auto": "自动刷新",
@@ -267,7 +296,7 @@ window.__ModuleLoader__.load({
       "docker.upgrading": "正在升级 {name}…",
       "docker.service": "服务",
       "form.onepanel": "1Panel 入口地址",
-      "form.onepanelHint": "可选，例如 http://panel.example.com:33333/entrance；留空则按检测到的端口生成。",
+      "form.onepanelHint": "可选，例如 http://203.0.113.33:33333/entrance；留空则按检测到的端口生成。",
       "pve.title": "PVE 虚拟化",
       "pve.readonly": "只读",
       "pve.version": "PVE {version}",
@@ -435,6 +464,28 @@ window.__ModuleLoader__.load({
       "detail.duration": "Took {ms} ms",
       "detail.runHint": "Runs as the login user; read-only policy blocks writes and dangerous commands are refused.",
       "detail.hostKey": "Host key",
+      "detail.transport": "Transport",
+      "detail.transportSsh": "SSH",
+      "detail.transportQnap": "QTS web",
+      "detail.transportSynology": "Synology DSM web",
+      "detail.transportFnos": "fnOS web",
+      "detail.openQts": "Open QTS console",
+      "detail.openDsm": "Open DSM console",
+      "detail.openFnos": "Open fnOS console",
+      "detail.qnapReadOnly": "NAS access is read-only; no shell is executed.",
+      "detail.webReadOnly": "NAS access is read-only monitoring; no shell is executed.",
+      "detail.fnosStatus": "fnOS system status",
+      "detail.fnosVersion": "System version",
+      "detail.fnosLatest": "Latest version",
+      "detail.fnosNetwork": "Network",
+      "detail.fnosUpToDate": "Up to date",
+      "detail.fnosUpdateAvailable": "Update available",
+      "detail.fnosUpdateHint": "Run the system update in the fnOS console.",
+      "detail.fnosApps": "Apps",
+      "detail.fnosAppStatus": "Status",
+      "detail.fnosOpenApp": "Open",
+      "detail.fnosNoApps": "No installed apps",
+      "detail.fnosUpdateLink": "Open fnOS updates",
       "detail.trusted": "Pinned",
       "detail.untrusted": "Not pinned",
       "detail.forgetHint": "Forget the old fingerprint after rebuilding or reinstalling the host.",
@@ -485,6 +536,13 @@ window.__ModuleLoader__.load({
       "form.authPassword": "Password",
       "form.authKey": "Private key",
       "form.authAgent": "SSH agent",
+      "form.transport": "Connection",
+      "form.transportSsh": "SSH (Linux / PVE)",
+      "form.transportQnap": "QNAP QTS web",
+      "form.transportSynology": "Synology DSM web",
+      "form.transportFnos": "fnOS web",
+      "form.baseUrl": "Web address",
+      "form.baseUrlHint": "Optional, for example http://203.0.113.28:88. Built from host and port when empty.",
       "form.required": "Required",
       "settings.title": "Settings",
       "settings.auto": "Auto refresh",
@@ -575,7 +633,7 @@ window.__ModuleLoader__.load({
       "docker.upgrading": "Upgrading {name}…",
       "docker.service": "Service",
       "form.onepanel": "1Panel entrance URL",
-      "form.onepanelHint": "Optional, e.g. http://panel.example.com:33333/entrance. Leave empty to derive the URL from the detected port.",
+      "form.onepanelHint": "Optional, e.g. http://203.0.113.33:33333/entrance. Leave empty to derive the URL from the detected port.",
       "pve.title": "Proxmox VE",
       "pve.readonly": "Read-only",
       "pve.version": "PVE {version}",
@@ -737,6 +795,18 @@ window.__ModuleLoader__.load({
       return `${value >= 100 ? Math.round(value) : value.toFixed(1)} GB`;
     }
 
+    function fmtRate(value) {
+      if (value === null || value === undefined || !Number.isFinite(Number(value))) return "—";
+      let rate = Math.max(0, Number(value));
+      const units = ["B/s", "KB/s", "MB/s", "GB/s"];
+      let unit = 0;
+      while (rate >= 1024 && unit < units.length - 1) {
+        rate /= 1024;
+        unit += 1;
+      }
+      return `${rate >= 10 || unit === 0 ? Math.round(rate) : rate.toFixed(1)} ${units[unit]}`;
+    }
+
     function fmtUptime(seconds) {
       if (seconds === null || seconds === undefined) return "—";
       const days = Math.floor(seconds / 86400);
@@ -845,15 +915,15 @@ window.__ModuleLoader__.load({
         h("path", { key: "c", d: "M7 7.5h.01M7 16.5h.01" }),
       );
 
-    const LogoMark = ({ size = 24 }) =>
+    const LogoMark = (props = {}) =>
       h("img", {
-        src: LOGO_URL,
-        width: size,
-        height: size,
-        alt: "",
-        draggable: false,
         className: "smx-logo-img",
-        "aria-hidden": "true",
+        src: LOGO_URL,
+        alt: "",
+        width: props.size || 24,
+        height: props.size || 24,
+        loading: "lazy",
+        draggable: "false",
       });
 
     const IconCheck = (props) =>
@@ -1127,15 +1197,22 @@ window.__ModuleLoader__.load({
     /* server form                                                        */
     /* ------------------------------------------------------------------ */
 
+    const WEB_DEFAULT_PORTS = { qnap: "88", synology: "5000", fnos: "5666" };
+    const WEB_NAME = { qnap: "Qnap", synology: "Synology", fnos: "Fnos" };
+
     function emptyForm(server) {
       const source = server || {};
+      const transport = source.transport || "ssh";
+      const isWeb = transport !== "ssh";
       return {
         id: source.id || "",
         name: source.name || "",
+        transport,
         host: source.host || "",
-        port: String(source.port || 22),
-        username: source.username || "root",
-        auth: source.auth || "password",
+        port: String(source.port || (isWeb ? WEB_DEFAULT_PORTS[transport] : 22)),
+        baseUrl: source.baseUrl || "",
+        username: source.username || (isWeb ? "admin" : "root"),
+        auth: isWeb ? "password" : source.auth || "password",
         password: "",
         passphrase: "",
         sudoPassword: "",
@@ -1169,6 +1246,21 @@ window.__ModuleLoader__.load({
         const value = target.type === "checkbox" ? target.checked : target.value;
         setForm((prev) => ({ ...prev, [field]: value }));
       };
+      const setTransport = (event) => {
+        const transport = event.target.value;
+        const web = transport !== "ssh";
+        setForm((prev) => {
+          const oldDefault = prev.transport === "ssh" ? "22" : WEB_DEFAULT_PORTS[prev.transport];
+          return {
+            ...prev,
+            transport,
+            auth: web ? "password" : prev.auth || "password",
+            port: prev.port === "" || prev.port === oldDefault
+              ? (web ? WEB_DEFAULT_PORTS[transport] : "22")
+              : prev.port,
+          };
+        });
+      };
 
       const submit = async (event) => {
         event.preventDefault();
@@ -1181,36 +1273,50 @@ window.__ModuleLoader__.load({
           setError(`${t("form.username")}: ${t("form.required")}`);
           return;
         }
+        if (form.transport !== "ssh" && mode === "add" && !form.password.trim()) {
+          setError(`${t("form.password")}: ${t("form.required")}`);
+          return;
+        }
         const lines = (value) =>
           String(value || "")
             .split(/\r?\n/)
             .map((line) => line.trim())
             .filter(Boolean);
+        const isWeb = form.transport !== "ssh";
         const payload = {
           id: form.id.trim() || slugify(form.name || form.host),
           name: form.name.trim() || form.host.trim(),
+          transport: form.transport,
           host: form.host.trim(),
-          port: Number(form.port) || 22,
+          port: Number(form.port) || (isWeb ? Number(WEB_DEFAULT_PORTS[form.transport]) : 22),
           username: form.username.trim(),
-          auth: form.auth,
+          auth: isWeb ? "password" : form.auth,
           group: form.group.trim(),
           tags: form.tags.split(",").map((tag) => tag.trim()).filter(Boolean),
           notes: form.notes.trim(),
           policy: {
-            readOnly: Boolean(form.readOnly),
-            allowDangerous: Boolean(form.allowDangerous),
-            allowCommands: lines(form.allowCommands),
-            denyCommands: lines(form.denyCommands),
+            readOnly: isWeb ? true : Boolean(form.readOnly),
+            allowDangerous: isWeb ? false : Boolean(form.allowDangerous),
+            allowCommands: isWeb ? [] : lines(form.allowCommands),
+            denyCommands: isWeb ? [] : lines(form.denyCommands),
           },
-          hostKey: { policy: form.hostKeyPolicy },
-          onepanel: { url: form.onepanelUrl.trim() || null },
         };
+        if (isWeb) {
+          payload.baseUrl = form.baseUrl.trim() || null;
+        } else {
+          payload.hostKey = { policy: form.hostKeyPolicy };
+          payload.onepanel = { url: form.onepanelUrl.trim() || null };
+        }
         if (form.auth === "key" && form.privateKeyPath.trim()) payload.privateKeyPath = form.privateKeyPath.trim();
         if (form.password.trim()) payload.password = form.password.trim();
         if (form.passphrase.trim()) payload.passphrase = form.passphrase.trim();
         if (form.sudoPassword.trim()) payload.sudoPassword = form.sudoPassword.trim();
         await onSubmit(payload, mode === "edit" ? server.id : undefined);
       };
+
+      const isWeb = form.transport !== "ssh";
+      const portPlaceholder = isWeb ? WEB_DEFAULT_PORTS[form.transport] : "22";
+      const usernamePlaceholder = isWeb ? "admin" : "root";
 
       const field = (label, control, hint) =>
         h(
@@ -1229,62 +1335,89 @@ window.__ModuleLoader__.load({
           { className: "smx-form-grid" },
           field(t("form.name"), h("input", { value: form.name, onChange: set("name"), placeholder: "prod-1", autoFocus: true })),
           field(t("form.id"), h("input", { value: form.id, onChange: set("id"), placeholder: "prod-1", disabled: mode === "edit" }), t("form.idHint")),
+          field(
+            t("form.transport"),
+            h(
+              "select",
+              { value: form.transport, onChange: setTransport },
+              h("option", { value: "ssh" }, t("form.transportSsh")),
+              h("option", { value: "qnap" }, t("form.transportQnap")),
+              h("option", { value: "synology" }, t("form.transportSynology")),
+              h("option", { value: "fnos" }, t("form.transportFnos")),
+            ),
+          ),
           field(t("form.host"), h("input", { value: form.host, onChange: set("host"), placeholder: "192.0.2.10" })),
-          field(t("form.port"), h("input", { value: form.port, onChange: set("port"), inputMode: "numeric", placeholder: "22" })),
-          field(t("form.username"), h("input", { value: form.username, onChange: set("username"), placeholder: "root" })),
-          field(
-            t("form.auth"),
-            h(
-              "select",
-              { value: form.auth, onChange: set("auth") },
-              h("option", { value: "password" }, t("form.authPassword")),
-              h("option", { value: "key" }, t("form.authKey")),
-              h("option", { value: "agent" }, t("form.authAgent")),
-            ),
-          ),
+          field(t("form.port"), h("input", { value: form.port, onChange: set("port"), inputMode: "numeric", placeholder: portPlaceholder })),
+          field(t("form.username"), h("input", { value: form.username, onChange: set("username"), placeholder: usernamePlaceholder })),
+          isWeb
+            ? field(t("form.baseUrl"), h("input", { value: form.baseUrl, onChange: set("baseUrl"), placeholder: form.transport === "synology" ? "https://203.0.113.26:5001" : form.transport === "fnos" ? "http://203.0.113.69:5666" : "http://203.0.113.28:88" }), t("form.baseUrlHint"))
+            : field(
+                t("form.auth"),
+                h(
+                  "select",
+                  { value: form.auth, onChange: set("auth") },
+                  h("option", { value: "password" }, t("form.authPassword")),
+                  h("option", { value: "key" }, t("form.authKey")),
+                  h("option", { value: "agent" }, t("form.authAgent")),
+                ),
+              ),
         ),
-        h(
-          "div",
-          { className: "smx-form-grid" },
-          form.auth === "password"
-            ? field(t("form.password"), h("input", { type: "password", value: form.password, onChange: set("password"), autoComplete: "new-password", placeholder: "env:PROD_PASSWORD" }), t("form.passwordHint"))
-            : form.auth === "key"
-              ? field(t("form.key"), h("input", { value: form.privateKeyPath, onChange: set("privateKeyPath"), placeholder: "~/.ssh/id_ed25519" }), t("form.keyHint"))
-              : field(t("form.authAgent"), h("input", { value: form.privateKeyPath, onChange: set("privateKeyPath"), placeholder: "~/.ssh/id_ed25519" }), t("form.keyHint")),
-          form.auth === "key"
-            ? field(t("form.passphrase"), h("input", { type: "password", value: form.passphrase, onChange: set("passphrase"), autoComplete: "new-password", placeholder: "env:KEY_PASSPHRASE" }), t("form.passphraseHint"))
-            : null,
-          field(t("form.sudoPassword"), h("input", { type: "password", value: form.sudoPassword, onChange: set("sudoPassword"), autoComplete: "new-password", placeholder: "env:SUDO_PASSWORD" })),
-          field(t("form.group"), h("input", { value: form.group, onChange: set("group"), placeholder: "prod" })),
-          field(t("form.tags"), h("input", { value: form.tags, onChange: set("tags"), placeholder: "web, eu" }), t("form.tagsHint")),
-          field(
-            t("form.hostKeyPolicy"),
-            h(
-              "select",
-              { value: form.hostKeyPolicy, onChange: set("hostKeyPolicy") },
-              h("option", { value: "accept-new" }, t("form.acceptNew")),
-              h("option", { value: "strict" }, t("form.strict")),
-              h("option", { value: "insecure" }, t("form.insecure")),
+        isWeb
+          ? h(
+              "div",
+              { className: "smx-form-grid" },
+              field(t("form.password"), h("input", { type: "password", value: form.password, onChange: set("password"), autoComplete: "new-password", placeholder: "NAS admin password" }), t("form.passwordHint")),
+              field(t("form.group"), h("input", { value: form.group, onChange: set("group"), placeholder: "NAS" })),
+              field(t("form.tags"), h("input", { value: form.tags, onChange: set("tags"), placeholder: form.transport === "synology" ? "synology, nas" : form.transport === "fnos" ? "fnos, nas" : "qnap, nas" }), t("form.tagsHint")),
+            )
+          : h(
+              "div",
+              { className: "smx-form-grid" },
+              form.auth === "password"
+                ? field(t("form.password"), h("input", { type: "password", value: form.password, onChange: set("password"), autoComplete: "new-password", placeholder: "env:PROD_PASSWORD" }), t("form.passwordHint"))
+                : form.auth === "key"
+                  ? field(t("form.key"), h("input", { value: form.privateKeyPath, onChange: set("privateKeyPath"), placeholder: "~/.ssh/id_ed25519" }), t("form.keyHint"))
+                  : field(t("form.authAgent"), h("input", { value: form.privateKeyPath, onChange: set("privateKeyPath"), placeholder: "~/.ssh/id_ed25519" }), t("form.keyHint")),
+              form.auth === "key"
+                ? field(t("form.passphrase"), h("input", { type: "password", value: form.passphrase, onChange: set("passphrase"), autoComplete: "new-password", placeholder: "env:KEY_PASSPHRASE" }), t("form.passphraseHint"))
+                : null,
+              field(t("form.sudoPassword"), h("input", { type: "password", value: form.sudoPassword, onChange: set("sudoPassword"), autoComplete: "new-password", placeholder: "env:SUDO_PASSWORD" })),
+              field(t("form.group"), h("input", { value: form.group, onChange: set("group"), placeholder: "prod" })),
+              field(t("form.tags"), h("input", { value: form.tags, onChange: set("tags"), placeholder: "web, eu" }), t("form.tagsHint")),
+              field(
+                t("form.hostKeyPolicy"),
+                h(
+                  "select",
+                  { value: form.hostKeyPolicy, onChange: set("hostKeyPolicy") },
+                  h("option", { value: "accept-new" }, t("form.acceptNew")),
+                  h("option", { value: "strict" }, t("form.strict")),
+                  h("option", { value: "insecure" }, t("form.insecure")),
+                ),
+              ),
+              field(t("form.onepanel"), h("input", { value: form.onepanelUrl, onChange: set("onepanelUrl"), placeholder: "http://203.0.113.33:33333/entrance" }), t("form.onepanelHint")),
             ),
-          ),
-          field(t("form.onepanel"), h("input", { value: form.onepanelUrl, onChange: set("onepanelUrl"), placeholder: "http://panel.example.com:33333/entrance" }), t("form.onepanelHint")),
-        ),
         h("div", { className: "smx-form-grid is-wide" },
           field(t("form.notes"), h("textarea", { rows: 2, value: form.notes, onChange: set("notes") })),
         ),
-        h("h3", { className: "smx-form-section" }, t("form.policy")),
-        h(
-          "div",
-          { className: "smx-form-checks" },
-          h("label", { className: "smx-check" }, h("input", { type: "checkbox", checked: form.readOnly, onChange: set("readOnly") }), h("span", null, t("form.readOnly"))),
-          h("label", { className: "smx-check" }, h("input", { type: "checkbox", checked: form.allowDangerous, onChange: set("allowDangerous") }), h("span", null, t("form.allowDangerous"))),
-        ),
-        h(
-          "div",
-          { className: "smx-form-grid" },
-          field(t("form.allowCommands"), h("textarea", { rows: 3, value: form.allowCommands, onChange: set("allowCommands"), placeholder: "^systemctl status" })),
-          field(t("form.denyCommands"), h("textarea", { rows: 3, value: form.denyCommands, onChange: set("denyCommands"), placeholder: "^rm -rf" })),
-        ),
+        isWeb
+          ? null
+          : h(
+              "div",
+              null,
+              h("h3", { className: "smx-form-section" }, t("form.policy")),
+              h(
+                "div",
+                { className: "smx-form-checks" },
+                h("label", { className: "smx-check" }, h("input", { type: "checkbox", checked: form.readOnly, onChange: set("readOnly") }), h("span", null, t("form.readOnly"))),
+                h("label", { className: "smx-check" }, h("input", { type: "checkbox", checked: form.allowDangerous, onChange: set("allowDangerous") }), h("span", null, t("form.allowDangerous"))),
+              ),
+              h(
+                "div",
+                { className: "smx-form-grid" },
+                field(t("form.allowCommands"), h("textarea", { rows: 3, value: form.allowCommands, onChange: set("allowCommands"), placeholder: "^systemctl status" })),
+                field(t("form.denyCommands"), h("textarea", { rows: 3, value: form.denyCommands, onChange: set("denyCommands"), placeholder: "^rm -rf" })),
+              ),
+            ),
         error ? h("p", { className: "smx-form-error" }, error) : null,
         h("p", { className: "smx-form-hint" }, t("form.progress")),
         h(
@@ -1975,10 +2108,21 @@ window.__ModuleLoader__.load({
     function ServerDetail({ server, busy, onProbe, onTest, onForget, onEdit, onDelete, notify }) {
       const status = server.status;
       const level = levelOf(server);
+      const transportName = server.transport || "ssh";
+      const isSsh = transportName === "ssh";
+      const transportLabel = isSsh
+        ? t("detail.transportSsh")
+        : t(`detail.transport${WEB_NAME[transportName] || "Qnap"}`);
+      const openLabel = transportName === "synology"
+        ? t("detail.openDsm")
+        : transportName === "fnos"
+          ? t("detail.openFnos")
+          : t("detail.openQts");
       const [command, setCommand] = useState("");
       const [running, setRunning] = useState(false);
       const [result, setResult] = useState(null);
       const [error, setError] = useState("");
+      const [diskIndex, setDiskIndex] = useState(0);
 
       const run = async () => {
         if (!command.trim() || running) return;
@@ -1995,7 +2139,11 @@ window.__ModuleLoader__.load({
         }
       };
 
-      const disk = rootDisk(status);
+      const disks = Array.isArray(status?.disks) ? status.disks : [];
+      const selectedDisk = disks.length === 0
+        ? null
+        : disks[Math.min(diskIndex, disks.length - 1)];
+      const disk = selectedDisk?.percent ?? null;
       const memory = status?.memory;
       const load = status?.load;
       const channels = server.policy?.readOnly ? t("detail.readOnly") : t("detail.unrestricted");
@@ -2028,6 +2176,7 @@ window.__ModuleLoader__.load({
         "div",
         { className: "smx-chips" },
         h("span", { className: "smx-chip" }, server.group || t("group.default")),
+        h("span", { className: "smx-chip" }, transportLabel),
         h("span", { className: "smx-chip" }, server.auth === "password" ? t("form.authPassword") : server.auth === "key" ? t("form.authKey") : t("form.authAgent")),
         h("span", { className: `smx-chip is-${level}` }, levelText(level)),
         h("span", { className: "smx-chip" }, `${t("detail.target")} ${server.port}`),
@@ -2081,7 +2230,7 @@ window.__ModuleLoader__.load({
           h("div", null, h("span", null, t("detail.latency", { ms: "" }) || "Latency"), h("b", null, fmtMs(status.latencyMs))),
           h("div", null, h("span", null, t("detail.hostname")), h("b", null, status.system?.hostname || "—")),
           h("div", null, h("span", null, t("detail.system")), h("b", { title: status.system?.os }, (status.system?.os || "—").replace(/^Ubuntu /, "Ubuntu "))),
-          h("div", null, h("span", null, t("detail.load")), h("b", null, load ? `${load.percent}% · ${(load.average?.[0] ?? 0).toFixed(2)}` : "—")),
+          h("div", null, h("span", null, t("detail.load")), h("b", null, load ? (isSsh ? `${load.percent}% · ${(load.average?.[0] ?? 0).toFixed(2)}` : `${load.percent}%`) : "—")),
         ),
         h(
           "div",
@@ -2095,10 +2244,31 @@ window.__ModuleLoader__.load({
               percent: memory?.percent ?? null,
               detail: memory ? `swap ${fmtPct(memory.swapPercent)}` : null,
             }),
+            disks.length > 1
+              ? h(
+                  "div",
+                  { className: "smx-disk-chips", role: "tablist", "aria-label": t("detail.disk") },
+                  disks.map((entry, index) =>
+                    h(
+                      "button",
+                      {
+                        type: "button",
+                        role: "tab",
+                        key: `${entry.mount}-${index}`,
+                        className: `smx-disk-chip ${index === Math.min(diskIndex, disks.length - 1) ? "is-active" : ""}`,
+                        "aria-selected": index === Math.min(diskIndex, disks.length - 1),
+                        onClick: () => setDiskIndex(index),
+                        title: `${fmtGb(entry.usedGb)} / ${fmtGb(entry.totalGb)}`,
+                      },
+                      entry.mount || `${t("detail.disk")} ${index + 1}`,
+                    ),
+                  ),
+                )
+              : null,
             h(Meter, {
-              label: `${t("detail.disk")} ${status.disks?.find((entry) => entry.mount === "/")?.mount || ""}`,
+              label: `${t("detail.disk")} ${selectedDisk?.mount || ""}`,
               percent: disk,
-              detail: status.disks?.[0] ? `${fmtGb(status.disks[0].usedGb)} / ${fmtGb(status.disks[0].totalGb)}` : null,
+              detail: selectedDisk ? `${fmtGb(selectedDisk.usedGb)} / ${fmtGb(selectedDisk.totalGb)}` : null,
             }),
           ),
           h(
@@ -2133,9 +2303,93 @@ window.__ModuleLoader__.load({
             status.rebootRequired ? h("p", { className: "smx-warn-line" }, t("detail.reboot")) : null,
           ),
         ),
-        h(OnePanelAppsBoard, { server }),
-        h(PveBoard, { server }),
-        h(DockerBoard, { server, notify }),
+        isSsh ? h(OnePanelAppsBoard, { server }) : null,
+        isSsh ? h(PveBoard, { server }) : null,
+        isSsh ? h(DockerBoard, { server, notify }) : null,
+        isSsh
+          ? null
+          : h(
+              "div",
+              { className: "smx-block" },
+              h("h3", null, transportLabel),
+              h("p", { className: "smx-muted" }, t("detail.webReadOnly")),
+              status.fnos?.note ? h("p", { className: "smx-muted" }, status.fnos.note) : null,
+              h(
+                "a",
+                {
+                  className: "smx-btn is-accent",
+                  style: { textDecoration: "none", display: "inline-flex", alignItems: "center" },
+                  href: server.baseUrl || `${server.port === 5001 ? "https" : "http"}://${server.host}:${server.port}`,
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                },
+                openLabel,
+              ),
+            ),
+        status.fnos
+          ? h(
+              "div",
+              { className: "smx-block" },
+              h(
+                "div",
+                { className: "smx-fnos-head" },
+                h("h3", null, t("detail.fnosStatus")),
+                h(
+                  "a",
+                  {
+                    className: "smx-btn is-accent",
+                    style: { textDecoration: "none", display: "inline-flex", alignItems: "center" },
+                    href: status.fnos.webUrl || server.baseUrl || `http://${server.host}:${server.port}`,
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                  },
+                  t("detail.fnosUpdateLink"),
+                ),
+              ),
+              h(
+                "div",
+                { className: "smx-fnos-meta" },
+                h("span", null, `${t("detail.fnosVersion")}：`, h("b", null, status.fnos.version || "—")),
+                h("span", null, `${t("detail.fnosLatest")}：`, h("b", null, status.fnos.latestVersion || "—")),
+                h(
+                  "span",
+                  { className: status.fnos.updateAvailable ? "smx-mini-tag is-warn" : "smx-mini-tag is-good" },
+                  status.fnos.updateAvailable ? t("detail.fnosUpdateAvailable") : t("detail.fnosUpToDate"),
+                ),
+                status.network
+                  ? h(
+                      "span",
+                      null,
+                      `${t("detail.fnosNetwork")} ↓ ${fmtRate(status.network.rxBytesPerSec)} ↑ ${fmtRate(status.network.txBytesPerSec)}`,
+                    )
+                  : null,
+              ),
+              status.fnos.updateAvailable
+                ? h("p", { className: "smx-muted" }, t("detail.fnosUpdateHint"))
+                : null,
+              (status.fnos.apps || []).length === 0
+                ? h("p", { className: "smx-muted" }, t("detail.fnosNoApps"))
+                : h(
+                    "div",
+                    { className: "smx-fnos-apps" },
+                    (status.fnos.apps || []).map((app, index) =>
+                      h(
+                        "div",
+                        { className: "smx-fnos-app", key: `${app.key || app.name}-${index}` },
+                        h("span", { className: "smx-ellipsis", title: app.name }, app.name),
+                        h("span", null, app.status || "—"),
+                        app.url
+                          ? h(
+                              "a",
+                              { href: app.url, target: "_blank", rel: "noopener noreferrer" },
+                              t("detail.fnosOpenApp"),
+                            )
+                          : h("span", { className: "smx-muted" }, "—"),
+                      ),
+                    ),
+                  ),
+            )
+          : null,
         processes.length > 0
           ? h(
               "div",
@@ -2165,6 +2419,7 @@ window.__ModuleLoader__.load({
               ),
             )
           : null,
+        isSsh ? h("div", null,
         h("p", { className: "smx-hint-line" }, t("detail.hostKey"), ": ",          h("code", { className: "smx-mono" }, server.hostKey?.fingerprint || "—"),
           h(Button, { className: "smx-inline-btn", onClick: () => onForget(server) }, t("action.forget")),
         ),
@@ -2204,6 +2459,7 @@ window.__ModuleLoader__.load({
               )
             : null,
         ),
+        ) : null,
         h("p", { className: "smx-muted" }, t("detail.agentDeploy")),
       );
     }
@@ -2581,7 +2837,7 @@ window.__ModuleLoader__.load({
             h(
               "div",
               { className: "smx-brand" },
-              h("div", { className: "smx-logo" }, h(LogoMark, { size: 38 })),
+              h("div", { className: "smx-logo" }, h(LogoMark, { size: 40 })),
               h(
                 "div",
                 { className: "smx-brand-text" },
@@ -2915,16 +3171,23 @@ window.__ModuleLoader__.load({
         flex: none;
         width: 54px; height: 54px;
         display: grid; place-items: center;
-        padding: 6px;
         color: var(--gold);
         border: 1px solid rgba(217, 179, 108, .42);
         border-radius: 14px;
-        overflow: hidden;
-        background: radial-gradient(circle at 50% 38%, rgba(217, 179, 108, .16), rgba(10, 11, 14, .92) 70%);
+        background: linear-gradient(160deg, rgba(217, 179, 108, .17), rgba(217, 179, 108, .03));
         box-shadow: 0 0 28px rgba(217, 179, 108, .13), inset 0 1px 0 rgba(255, 255, 255, .06);
       }
-      .smx-logo-img { display: block; object-fit: contain; filter: drop-shadow(0 0 5px rgba(217, 179, 108, .25)); }
+      .smx-logo-img { display: block; object-fit: contain; border-radius: 9px; }
       .smx-logo .smx-logo-img { width: 100%; height: 100%; }
+      .smx-disk-chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 2px 0 8px; }
+      .smx-disk-chip {
+        max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        padding: 4px 9px; border-radius: 999px; cursor: pointer;
+        border: 1px solid var(--line); background: rgba(255, 255, 255, .03);
+        color: var(--dim); font-size: 11px;
+      }
+      .smx-disk-chip:hover { color: var(--text); border-color: rgba(217, 179, 108, .35); }
+      .smx-disk-chip.is-active { color: var(--gold); border-color: rgba(217, 179, 108, .55); background: rgba(217, 179, 108, .1); }
       .smx-eyebrow { color: var(--gold); font-size: 10px; letter-spacing: .34em; text-transform: uppercase; margin-bottom: 4px; }
       .smx-brand h1 { font-size: 30px; line-height: 1.05; letter-spacing: .14em; font-weight: 800; }
       .smx-title-sub { margin-left: 12px; font-size: 12px; letter-spacing: .04em; font-weight: 500; color: var(--dim); }
@@ -3105,6 +3368,14 @@ window.__ModuleLoader__.load({
       .smx-detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 13px 0; }
       .smx-block { border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; background: rgba(255, 255, 255, .018); }
       .smx-block h3 { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #6f7482; margin-bottom: 9px; }
+      .smx-fnos-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+      .smx-fnos-head h3 { margin-bottom: 0; }
+      .smx-fnos-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; color: var(--dim); font-size: 11px; margin-bottom: 7px; }
+      .smx-fnos-meta b { color: var(--text); font-family: "SFMono-Regular", Consolas, monospace; }
+      .smx-fnos-apps { display: flex; flex-direction: column; margin-top: 7px; }
+      .smx-fnos-app { display: grid; grid-template-columns: minmax(0, 1fr) 84px 52px; align-items: center; gap: 8px; padding: 5px 0; border-top: 1px solid rgba(255, 255, 255, .05); font-size: 11px; }
+      .smx-fnos-app a { color: var(--gold); text-decoration: none; }
+      .smx-fnos-app a:hover { text-decoration: underline; }
       .smx-meter { margin-bottom: 10px; }
       .smx-meter:last-child { margin-bottom: 0; }
       .smx-meter-head { display: flex; justify-content: space-between; gap: 8px; color: var(--dim); font-size: 11px; }

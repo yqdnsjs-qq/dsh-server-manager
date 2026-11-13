@@ -37,9 +37,11 @@ const SERVER_PARAM = string('Server id, name, host, or user@host. Omit only wher
 const SERVER_INPUT = object({
   id: string('Stable id (slug). Derived from name when omitted.'),
   name: string('Human name shown in the panel.'),
+  transport: enumeration('Connection transport: ssh (default), qnap (QTS web API), synology (DSM Web API), or fnos (fnOS web console, link-only). All web transports are read-only.', ['ssh', 'qnap', 'synology', 'fnos']),
   host: string('Hostname or IP. Also accepts user@host:port or ssh://user@host:port.'),
-  port: number('SSH port, default 22.'),
-  username: string('SSH user, default root.'),
+  port: number('SSH port (default 22); web transports default to 88 (QNAP), 5000 (Synology) or 5666 (fnOS).'),
+  baseUrl: string('Optional full web base URL, e.g. http://nas.local:88 or https://dsm.local:5001 (web transports).'),
+  username: string('SSH user (default root) or the NAS web administrator for web transports.'),
   auth: enumeration('Authentication method; inferred from password/privateKeyPath/agent when omitted.', ['password', 'key', 'agent']),
   password: string('Password, or an env:NAME / file:path reference (preferred).'),
   privateKeyPath: string('Private key path for auth=key (supports ~).'),

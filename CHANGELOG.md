@@ -4,13 +4,67 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] — 2026-11-13
+
+### Added
+
+- fnOS is now a real read-only web connector. It signs in through the encrypted
+  WebSocket session (`util.crypto.getRSAPub` + RSA PKCS#1 v1.5 + AES-256-CBC),
+  signs every RPC with HMAC-SHA256, and reads CPU, memory, network, storage,
+  Docker containers, installed apps and system-update state from `updatemgr`.
+- The fnOS detail card shows the running version, latest version, update badge,
+  update link and the installed app list.
+
+### Changed
+
+- 95 tests (up from 93).
+
+## [1.0.2] — 2026-11-13
+
+### Added
+
+- Synology DSM read-only transport (`transport: "synology"`): signs in through
+  `SYNO.API.Auth`, then reads system/firmware, CPU, memory, uptime and every
+  volume through `SYNO.Core.System`, `SYNO.Core.System.Utilization` and
+  `SYNO.Storage.CGI.Storage`.
+- fnOS (`transport: "fnos"`) read-only reachability connector with a direct
+  console link; metrics stay out until its encrypted WebSocket API is supported.
+- NAS detail pages now expose a volume switcher when more than one disk/volume
+  is reported, instead of showing only the first one.
+- The plugin icon is shipped in the source tree and served by
+  `GET /api/server-manager/logo`; the sidebar entry and dashboard header render it.
+
+### Changed
+
+- Web transports (QNAP, Synology, fnOS) share the same read-only NAS form and
+  hide SSH-only fields, host keys, policies, Docker, PVE and 1Panel panels.
+- `server_manage`/`server_status` accept `transport: "synology" | "fnos"` and
+  their default ports (5000 and 5666).
+- 93 tests (up from 86).
+
+## [1.0.1] — 2026-11-13
+
+### Added
+
+- QNAP NAS transport (`transport: "qnap"`): sign in to the QTS web UI with an
+  admin account, then show the model, firmware, CPU, memory, uptime and volume
+  capacity in the Server Deck. No SSH is required.
+- QNAP entries are forced read-only; shell, transfer, deploy, Docker, PVE and
+  1Panel operations are rejected with a clear error.
+- QNAP-aware add/edit form: transport selector, QTS URL, admin password, and
+  SSH-only fields hidden automatically.
+
+### Changed
+
+- `server_status`/`server_test` use the QTS web probe for QNAP entries.
+- 86 tests (up from 79).
+
 ## [1.0.0] — 2026-11-13
 
 First public release.
 
 ### Added
 
-- Plugin logo: a transparent gold mark used by DSH's plugin metadata, the sidebar entry and the dashboard header, served from `/api/server-manager/logo`.
 - The dashboard header and the settings dialog show the running plugin version (`v1.0.0`).
 - Docker deck in the Server Deck page: live containers (state, health, ports, CPU/memory, compose
   project), start/stop/restart/pause, log tail and in-place compose service upgrade.
@@ -45,7 +99,7 @@ First public release.
 - Tests for the Docker script/parser, lifecycle commands, compose upgrade validation, the PVE
   parser and update refresh, the 1Panel app database reader and version comparison, the local env
   file, the encrypted vault, container URL generation, SSH queueing and the expanded client
-  dictionary (81 tests).
+  dictionary (79 tests).
 
 ## [0.1.0] — 2026-11-11 (internal preview)
 

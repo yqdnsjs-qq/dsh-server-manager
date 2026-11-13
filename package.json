@@ -1,10 +1,10 @@
 {
   "name": "dsh-server-manager",
-  "version": "1.0.0",
-  "description": "Multi-server operations for DeepSeek Harness: live status, password/key/SSH-agent login, agent-callable exec, file transfer, release deploys and rollbacks.",
+  "version": "1.0.3",
+  "description": "Multi-server operations for DeepSeek Harness: live status, password/key/SSH-agent login, agent-callable exec, file transfer, release deploys and rollbacks, plus read-only QNAP, Synology and fnOS NAS monitoring over their web UIs.",
   "type": "module",
   "license": "MIT",
-  "author": "yqdnsjs-qq",
+  "author": "dsh-server-manager contributors",
   "icon": "icon.png",
   "main": "src/index.js",
   "exports": {
@@ -15,9 +15,9 @@
   "files": [
     "src",
     "client",
-    "icon.png",
     "docs",
     "examples",
+    "icon.png",
     "cordis.patch.yml",
     "README.md",
     "README.zh.md",
@@ -69,11 +69,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yqdnsjs-qq/dsh-server-manager.git"
+    "url": "git+https://github.com/OWNER/dsh-server-manager.git"
   },
-  "homepage": "https://github.com/yqdnsjs-qq/dsh-server-manager#readme",
+  "homepage": "https://github.com/OWNER/dsh-server-manager#readme",
   "bugs": {
-    "url": "https://github.com/yqdnsjs-qq/dsh-server-manager/issues"
+    "url": "https://github.com/OWNER/dsh-server-manager/issues"
   },
   "publishConfig": {
     "access": "public",

@@ -7,6 +7,9 @@ export const CONFIG_VERSION = 1;
 
 export const AUTH_KINDS = ['password', 'key', 'agent'];
 export const HOST_KEY_POLICIES = ['accept-new', 'strict', 'insecure'];
+export const TRANSPORTS = ['ssh', 'qnap', 'synology', 'fnos'];
+export const WEB_TRANSPORTS = new Set(['qnap', 'synology', 'fnos']);
+const WEB_DEFAULT_PORTS = { qnap: 88, synology: 5000, fnos: 5666 };
 
 export const BUILTIN_DEFAULTS = Object.freeze({
   port: 22,
@@ -99,13 +102,42 @@ function normalizePolicy(raw = {}, flat = {}) {
 export function normalizeServer(raw, defaults = {}, options = {}) {
   const errors = [];
   const input = raw && typeof raw === 'object' ? raw : {};
+  const transportRaw = input.transport === undefined || input.transport === null
+    ? 'ssh'
+    : String(input.transport).trim().toLowerCase();
+  if (!TRANSPORTS.includes(transportRaw)) errors.push(`transport must be one of ${TRANSPORTS.join(', ')}`);
+  const transport = TRANSPORTS.includes(transportRaw) ? transportRaw : 'ssh';
+
   const parsed = parseHostSpec(input.host);
   const host = String(parsed.host ?? '').trim().toLowerCase();
   if (host === '') errors.push('host is required');
   if (/\s/.test(host)) errors.push('host must not contain whitespace');
 
-  const port = clampInt(input.port ?? parsed.port ?? defaults.port ?? BUILTIN_DEFAULTS.port, 22, 1, 65_535);
-  const username = String(input.username ?? parsed.username ?? defaults.username ?? 'root').trim();
+  const baseUrlInput = typeof input.baseUrl === 'string' ? input.baseUrl.trim().replace(/\/+$/, '') : '';
+  if (baseUrlInput !== '' && !/^https?:\/\/[^\s]+$/i.test(baseUrlInput)) {
+    errors.push('baseUrl must be an http(s) URL, for example "http://203.0.113.28:88"');
+  }
+  let baseUrl = baseUrlInput === '' ? null : baseUrlInput;
+  let baseUrlPort = null;
+  if (baseUrl) {
+    try {
+      const parsedUrl = new URL(baseUrl);
+      baseUrlPort = parsedUrl.port ? Number(parsedUrl.port) : (parsedUrl.protocol === 'https:' ? 443 : 80);
+    } catch {
+      errors.push('baseUrl is not a valid URL');
+    }
+  }
+
+  const defaultPort = WEB_DEFAULT_PORTS[transport] ?? BUILTIN_DEFAULTS.port;
+  const port = clampInt(
+    input.port ?? parsed.port ?? baseUrlPort ?? defaults.port ?? defaultPort,
+    defaultPort,
+    1,
+    65_535,
+  );
+  const username = String(
+    input.username ?? parsed.username ?? defaults.username ?? (WEB_TRANSPORTS.has(transport) ? 'admin' : 'root'),
+  ).trim();
   if (username === '') errors.push('username is required');
 
   const privateKeyPath = input.privateKeyPath ? String(input.privateKeyPath) : null;
@@ -118,11 +150,16 @@ export function normalizeServer(raw, defaults = {}, options = {}) {
 
   let auth = input.auth ? String(input.auth) : '';
   if (auth === '') {
-    if (agent) auth = 'agent';
+    if (WEB_TRANSPORTS.has(transport)) auth = 'password';
+    else if (agent) auth = 'agent';
     else if (privateKeyPath) auth = 'key';
     else auth = 'password';
   }
   if (!AUTH_KINDS.includes(auth)) errors.push(`auth must be one of ${AUTH_KINDS.join(', ')}`);
+  if (WEB_TRANSPORTS.has(transport) && auth !== 'password') {
+    const label = transport === 'qnap' ? 'QNAP' : transport;
+    errors.push(`${label} transport supports auth=password only`);
+  }
   if (auth === 'password' && password === null && options.requirePassword !== false) {
     errors.push('auth=password requires a password (or set auth to key/agent)');
   }
@@ -141,14 +178,19 @@ export function normalizeServer(raw, defaults = {}, options = {}) {
   const onepanelInput = input.onepanel && typeof input.onepanel === 'object' ? input.onepanel : {};
   const onepanelUrl = typeof onepanelInput.url === 'string' ? onepanelInput.url.trim() : '';
   if (onepanelUrl !== '' && !/^https?:\/\/[^\s]+$/i.test(onepanelUrl)) {
-    errors.push('onepanel.url must be an http(s) URL, for example "http://panel.example.com:33333/entrance"');
+    errors.push('onepanel.url must be an http(s) URL, for example "http://203.0.113.33:33333/entrance"');
   }
+
+  const policy = normalizePolicy(input.policy, input);
+  if (WEB_TRANSPORTS.has(transport)) policy.readOnly = true;
 
   const server = {
     id,
     name: String(input.name ?? '').trim() || id,
+    transport,
     host,
     port,
+    baseUrl,
     username,
     auth,
     password,
@@ -160,7 +202,7 @@ export function normalizeServer(raw, defaults = {}, options = {}) {
     tags: Array.isArray(input.tags) ? input.tags.map(tag => String(tag)).filter(Boolean) : [],
     notes: String(input.notes ?? '').trim(),
     enabled: input.enabled !== false,
-    policy: normalizePolicy(input.policy, input),
+    policy,
     hostKey: {
       policy: hostKeyPolicy,
       fingerprint: typeof hostKey.fingerprint === 'string' ? hostKey.fingerprint : null,
@@ -338,8 +380,10 @@ export function publicServer(server, status) {
   return {
     id: server.id,
     name: server.name,
+    transport: server.transport ?? 'ssh',
     host: server.host,
     port: server.port,
+    baseUrl: server.baseUrl ?? null,
     username: server.username,
     auth: server.auth,
     group: server.group,

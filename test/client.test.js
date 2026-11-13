@@ -117,6 +117,13 @@ test('client bundle exposes zh and en dictionaries with the same keys', () => {
   for (const key of ['onepanel.title', 'onepanel.updates', 'onepanel.refresh', 'onepanel.current', 'onepanel.candidate']) {
     assert.ok(zhKeys.includes(key), `dictionary contains ${key}`);
   }
+  for (const key of [
+    'form.transport', 'form.transportQnap', 'form.transportSynology', 'form.transportFnos',
+    'form.baseUrl', 'detail.openQts', 'detail.openDsm', 'detail.openFnos',
+    'detail.qnapReadOnly', 'detail.webReadOnly',
+  ]) {
+    assert.ok(zhKeys.includes(key), `dictionary contains ${key}`);
+  }
 });
 
 test('client bundle shows the plugin version in the header', () => {
@@ -148,6 +155,27 @@ test('client bundle renders the 1Panel app-store update panel', () => {
   assert.match(source, /\/onepanel\?id=/);
   assert.match(source, /h\(OnePanelAppsBoard,/);
   assert.match(source, /onepanel\.candidate/);
+});
+
+test('client bundle exposes QNAP, Synology and fnOS web transport forms', () => {
+  assert.match(source, /form\.transportQnap/);
+  assert.match(source, /form\.transportSynology/);
+  assert.match(source, /form\.transportFnos/);
+  assert.match(source, /form\.baseUrl/);
+  assert.match(source, /detail\.openQts/);
+  assert.match(source, /detail\.openDsm/);
+  assert.match(source, /detail\.openFnos/);
+  assert.match(source, /server\.transport \|\| "ssh"/);
+  assert.match(source, /isSsh \? h\(DockerBoard/);
+});
+
+test('client bundle uses the packaged logo and supports switching NAS volumes', () => {
+  assert.match(source, /LOGO_URL/);
+  assert.match(source, /smx-logo-img/);
+  assert.match(source, /\/logo/);
+  assert.match(source, /const LogoMark/);
+  assert.match(source, /smx-disk-chip/);
+  assert.match(source, /setDiskIndex/);
 });
 
 test('client bundle no longer depends on the right-sidebar tab service', () => {
