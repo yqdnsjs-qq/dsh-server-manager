@@ -174,6 +174,28 @@ export async function synologyLogout(baseUrl, sid, options = {}) {
   }
 }
 
+const SYNO_APP_LAUNCHERS = {
+  FileStation: ['File Station', 'SYNO.SDS.FileBrowserApplication'],
+  SynologyPhotos: ['Synology Photos', 'SYNO.SDS.SynologyPhotos.Application'],
+  AudioStation: ['Audio Station', 'SYNO.SDS.AudioStation.Application'],
+  VideoStation: ['Video Station', 'SYNO.SDS.VideoStation.Application'],
+};
+
+export function synologyApps(baseUrl, packages) {
+  const list = Array.isArray(packages) ? packages : [];
+  return list
+    .filter(pkg => SYNO_APP_LAUNCHERS[pkg?.id])
+    .map(pkg => {
+      const [name, launchId] = SYNO_APP_LAUNCHERS[pkg.id];
+      return {
+        key: pkg.id,
+        name: pkg.name || name,
+        status: pkg.additional?.status || pkg.status || 'unknown',
+        url: `${baseUrl}/?launchApp=${encodeURIComponent(launchId)}`,
+      };
+    });
+}
+
 function parseVolumes(storage) {
   const volumes = Array.isArray(storage?.volumes) ? storage.volumes : [];
   const disks = [];
@@ -225,7 +247,7 @@ export async function probeSynology(server, options = {}) {
     const login = await synologyLogin(server, { signal: options.signal, timeoutMs });
     sid = login.sid;
     const common = { sid, signal: options.signal, timeoutMs };
-    const [infoBody, utilBody, storageBody] = await Promise.all([
+    const [infoBody, utilBody, storageBody, packagesBody] = await Promise.all([
       dsmGet(baseUrl, sid, '/webapi/entry.cgi', {
         api: 'SYNO.Core.System', version: 3, method: 'info', sid,
       }, common),
@@ -235,6 +257,10 @@ export async function probeSynology(server, options = {}) {
       dsmGet(baseUrl, sid, '/webapi/entry.cgi', {
         api: 'SYNO.Storage.CGI.Storage', version: 1, method: 'load_info', sid,
       }, common),
+      dsmGet(baseUrl, sid, '/webapi/entry.cgi', {
+        api: 'SYNO.Core.Package', version: 1, method: 'list', sid,
+        additional: JSON.stringify(['status']),
+      }, common).catch(() => null),
     ]);
 
     const info = infoBody?.data ?? {};
@@ -270,6 +296,7 @@ export async function probeSynology(server, options = {}) {
 
     const { disks, warnings: volumeWarnings } = parseVolumes(storage);
     const physicalDisks = parseDisks(storage);
+    const apps = synologyApps(baseUrl, packagesBody?.data?.packages);
     const warnings = [...volumeWarnings];
     const temperature = Number(info.sys_temp ?? util.temperature?.sys_temp ?? NaN);
     if (Number.isFinite(temperature) && temperature >= 65) warnings.push(`system temperature is ${temperature}°C`);
@@ -314,12 +341,14 @@ export async function probeSynology(server, options = {}) {
       },
       systemd: { available: false, failed: [] },
       rebootRequired: false,
+      apps,
       synology: {
         model,
         firmware,
         serial: info.serial || null,
         temperature: Number.isFinite(temperature) ? temperature : null,
         physicalDisks,
+        apps,
       },
       checkedAt: new Date().toISOString(),
       latencyMs: Date.now() - startedAt,

@@ -35,7 +35,7 @@
 - **自动识别 1Panel**：每台服务器都会自动检测 1Panel（版本、端口、托管的应用/容器、应用商店更新）并提供入口链接，无需逐台配置；没有 1Panel 也能正常用。
 - **识别 Proxmox VE**：只读展示 VM/CT 的状态、CPU、内存、磁盘、运行时长，以及节点和存储容量，并可一键跳转 PVE 控制台；开关机仍由 PVE 自己处理。
 - **PVE 更新提醒**：读取各节点缓存的 apt 更新列表，显示待更新包、安全更新数量与最近检查时间；“检查更新”按钮会显式触发一次 `pvesh create …/apt/update`。
-- **NAS 网页接入**：支持威联通 QTS、群晖 DSM 与飞牛 fnOS，只读监控。三者都用 NAS 管理员账号登录，读取 CPU、内存、运行时长和全部卷（可切换查看）；fnOS 还通过加密 WebSocket 读取网络、Docker 容器、已安装应用和系统更新状态。全程不需要 SSH。
+- **NAS 网页接入**：支持威联通 QTS、群晖 DSM 与飞牛 fnOS，只读监控。三者都用 NAS 管理员账号登录，读取 CPU、内存、运行时长和全部卷（可切换查看），并为有稳定网页入口的原生应用提供一键打开按钮（File Station、Synology Photos、音视频 Station、QNAP Photo Station、Container Station，以及 fnOS 的路径型应用）；fnOS 还通过加密 WebSocket 读取网络、Docker 容器、已安装应用和系统更新状态。全程不需要 SSH。
 - **1Panel 应用商店面板**：只读读取 1Panel 本地应用数据库（必要时回退 `sudo`），列出已安装应用的当前/最新版本、可更新标记与容器状态；不调用 1Panel API，也不会替你升级。
 - **Agent 直接执行**：多行脚本经 `bash -s` 执行，返回退出码、stdout、stderr、耗时；可选 `sudo -S`。
 - **可回滚的部署**：release 目录 + `current` 软链、保留 N 个版本、本地构建命令、部署前后钩子、HTTP 或命令健康检查、远端部署清单。
@@ -179,5 +179,3 @@ examples/   配置示例
 ## 许可证
 
 [MIT](LICENSE) © dsh-server-manager contributors
-
-> 仓库地址：<https://github.com/yqdnsjs-qq/dsh-server-manager>；发布步骤见 [RELEASING.md](RELEASING.md)。

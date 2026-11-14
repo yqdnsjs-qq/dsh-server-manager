@@ -48,6 +48,20 @@ export function qnapBaseUrl(server) {
   return `${secure ? 'https' : 'http'}://${hostForUrl(server.host)}:${server.port}`;
 }
 
+/**
+ * Common QTS applications with stable launch paths. App Center does not expose
+ * an unauthenticated package list, so we only advertise the built-in apps whose
+ * paths are part of the QTS UI contract.
+ */
+export function qnapApps(server) {
+  const base = qnapBaseUrl(server);
+  return [
+    { key: 'filestation', name: 'File Station', status: 'available', url: `${base}/filestation/` },
+    { key: 'photo', name: 'Photo Station', status: 'available', url: `${base}/photo/` },
+    { key: 'container-station', name: 'Container Station', status: 'available', url: `${base}/container-station/` },
+  ];
+}
+
 function decodeXml(value) {
   return String(value ?? '')
     .replace(/^<!\[CDATA\[/, '')
@@ -284,6 +298,7 @@ export async function probeQnap(server, options = {}) {
     void activeKb;
 
     const { disks, warnings: volumeWarnings } = parseVolumes(volumeXml);
+    const apps = qnapApps(server);
     const warnings = [...volumeWarnings];
     if (memory?.percent !== null && memory?.percent >= 90) warnings.push(`memory is ${memory.percent}% used`);
     if (cpuPercent !== null && cpuPercent >= 90) warnings.push(`CPU is ${cpuPercent}% used`);
@@ -325,11 +340,13 @@ export async function probeQnap(server, options = {}) {
       },
       systemd: { available: false, failed: [] },
       rebootRequired: false,
+      apps,
       qnap: {
         model,
         firmware,
         build,
         volumeWarnings,
+        apps,
       },
       checkedAt: new Date().toISOString(),
       latencyMs: Date.now() - startedAt,

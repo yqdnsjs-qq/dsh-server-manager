@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] — 2026-11-14
+
+### Added
+
+- NAS application launchers now have an **Open** button on the server detail
+  page. fnOS apps use their published port or their path on the fnOS origin;
+  Synology exposes File Station, Synology Photos, Audio Station and Video
+  Station; QNAP exposes File Station, Photo Station and Container Station.
+- Synology app status is read from `SYNO.Core.Package` alongside the existing
+  storage and utilization probes.
+
+### Changed
+
+- 100 tests (up from 96).
+
 ## [1.0.4] — 2026-11-14
 
 ### Fixed

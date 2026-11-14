@@ -320,6 +320,27 @@ export function fnosWebUrl(server) {
 }
 
 /**
+ * Resolve a fnOS app launch URL. Apps may publish their own port, live under
+ * the fnOS origin (path only), or expose a full URL / fnOS domain.
+ */
+export function fnosAppUrl(server, app) {
+  const uri = app?.uri ?? {};
+  const path = typeof uri.path === 'string' && uri.path.trim()
+    ? (uri.path.trim().startsWith('/') ? uri.path.trim() : `/${uri.path.trim()}`)
+    : '/';
+  const port = Number(uri.port);
+  if (Number.isFinite(port) && port > 0) {
+    const scheme = String(uri.protocol || '').toLowerCase().includes('https') ? 'https' : 'http';
+    return `${scheme}://${hostForUrl(uri.host || server.host)}:${port}${path}`;
+  }
+  try {
+    return new URL(path, `${fnosBaseUrl(server)}/`).toString();
+  } catch {
+    return typeof app?.fullUrl === 'string' && /^https?:\/\//i.test(app.fullUrl) ? app.fullUrl : null;
+  }
+}
+
+/**
  * Probe fnOS over its encrypted WebSocket session.
  * @param {object} server normalized server entry.
  * @param {{timeoutMs?: number, signal?: AbortSignal}} options
@@ -429,6 +450,12 @@ export async function probeFnos(server, options = {}) {
       },
       disks,
       processes: [],
+      apps: appList.map(item => ({
+        name: item.title || item.appName,
+        key: item.appName,
+        status: item.status || 'unknown',
+        url: fnosAppUrl(server, item),
+      })),
       network: {
         rxBytesPerSec: rx,
         txBytesPerSec: tx,
@@ -462,9 +489,7 @@ export async function probeFnos(server, options = {}) {
           name: item.title || item.appName,
           key: item.appName,
           status: item.status || 'unknown',
-          url: item.uri?.port
-            ? `http://${hostForUrl(server.host)}:${item.uri.port}${item.uri.path || '/'}`
-            : null,
+          url: fnosAppUrl(server, item),
         })),
         dockerCount: dockerList.length,
         webUrl: baseUrl,

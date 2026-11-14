@@ -207,7 +207,7 @@ window.__ModuleLoader__.load({
       "form.transportSynology": "群晖 DSM 网页",
       "form.transportFnos": "飞牛 fnOS 网页",
       "form.baseUrl": "网页地址",
-      "form.baseUrlHint": "可选；例如 http://203.0.113.28:88。留空按主机和端口拼。",
+      "form.baseUrlHint": "可选；例如 http://192.168.8.28:88。留空按主机和端口拼。",
       "form.required": "必填",
       "settings.title": "设置",
       "settings.auto": "自动刷新",
@@ -298,7 +298,7 @@ window.__ModuleLoader__.load({
       "docker.upgrading": "正在升级 {name}…",
       "docker.service": "服务",
       "form.onepanel": "1Panel 入口地址",
-      "form.onepanelHint": "可选，例如 http://203.0.113.33:33333/entrance；留空则按检测到的端口生成。",
+      "form.onepanelHint": "可选，例如 http://192.168.8.33:33333/entrance；留空则按检测到的端口生成。",
       "pve.title": "PVE 虚拟化",
       "pve.readonly": "只读",
       "pve.version": "PVE {version}",
@@ -546,7 +546,7 @@ window.__ModuleLoader__.load({
       "form.transportSynology": "Synology DSM web",
       "form.transportFnos": "fnOS web",
       "form.baseUrl": "Web address",
-      "form.baseUrlHint": "Optional, for example http://203.0.113.28:88. Built from host and port when empty.",
+      "form.baseUrlHint": "Optional, for example http://192.168.8.28:88. Built from host and port when empty.",
       "form.required": "Required",
       "settings.title": "Settings",
       "settings.auto": "Auto refresh",
@@ -637,7 +637,7 @@ window.__ModuleLoader__.load({
       "docker.upgrading": "Upgrading {name}…",
       "docker.service": "Service",
       "form.onepanel": "1Panel entrance URL",
-      "form.onepanelHint": "Optional, e.g. http://203.0.113.33:33333/entrance. Leave empty to derive the URL from the detected port.",
+      "form.onepanelHint": "Optional, e.g. http://192.168.8.33:33333/entrance. Leave empty to derive the URL from the detected port.",
       "pve.title": "Proxmox VE",
       "pve.readonly": "Read-only",
       "pve.version": "PVE {version}",
@@ -1354,7 +1354,7 @@ window.__ModuleLoader__.load({
           field(t("form.port"), h("input", { value: form.port, onChange: set("port"), inputMode: "numeric", placeholder: portPlaceholder })),
           field(t("form.username"), h("input", { value: form.username, onChange: set("username"), placeholder: usernamePlaceholder })),
           isWeb
-            ? field(t("form.baseUrl"), h("input", { value: form.baseUrl, onChange: set("baseUrl"), placeholder: form.transport === "synology" ? "https://203.0.113.26:5001" : form.transport === "fnos" ? "http://203.0.113.69:5666" : "http://203.0.113.28:88" }), t("form.baseUrlHint"))
+            ? field(t("form.baseUrl"), h("input", { value: form.baseUrl, onChange: set("baseUrl"), placeholder: form.transport === "synology" ? "https://192.168.8.26:5001" : form.transport === "fnos" ? "http://192.168.8.69:5666" : "http://192.168.8.28:88" }), t("form.baseUrlHint"))
             : field(
                 t("form.auth"),
                 h(
@@ -1398,7 +1398,7 @@ window.__ModuleLoader__.load({
                   h("option", { value: "insecure" }, t("form.insecure")),
                 ),
               ),
-              field(t("form.onepanel"), h("input", { value: form.onepanelUrl, onChange: set("onepanelUrl"), placeholder: "http://203.0.113.33:33333/entrance" }), t("form.onepanelHint")),
+              field(t("form.onepanel"), h("input", { value: form.onepanelUrl, onChange: set("onepanelUrl"), placeholder: "http://192.168.8.33:33333/entrance" }), t("form.onepanelHint")),
             ),
         h("div", { className: "smx-form-grid is-wide" },
           field(t("form.notes"), h("textarea", { rows: 2, value: form.notes, onChange: set("notes") })),
@@ -2330,6 +2330,32 @@ window.__ModuleLoader__.load({
                 openLabel,
               ),
             ),
+        !status.fnos && (status.apps || []).length > 0
+          ? h(
+              "div",
+              { className: "smx-block" },
+              h("h3", null, t("detail.fnosApps")),
+              h(
+                "div",
+                { className: "smx-fnos-apps" },
+                (status.apps || []).map((app, index) =>
+                  h(
+                    "div",
+                    { className: "smx-fnos-app", key: `${app.key || app.name}-${index}` },
+                    h("span", { className: "smx-ellipsis", title: app.name }, app.name),
+                    h("span", null, app.status || "—"),
+                    app.url
+                      ? h(
+                          "a",
+                          { href: app.url, target: "_blank", rel: "noopener noreferrer" },
+                          t("detail.fnosOpenApp"),
+                        )
+                      : h("span", { className: "smx-muted" }, "—"),
+                  ),
+                ),
+              ),
+            )
+          : null,
         status.fnos
           ? h(
               "div",
@@ -2385,6 +2411,7 @@ window.__ModuleLoader__.load({
               status.fnos.updateAvailable
                 ? h("p", { className: "smx-muted" }, t("detail.fnosUpdateHint"))
                 : null,
+              h("h3", null, t("detail.fnosApps")),
               (status.fnos.apps || []).length === 0
                 ? h("p", { className: "smx-muted" }, t("detail.fnosNoApps"))
                 : h(

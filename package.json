@@ -1,6 +1,6 @@
 {
   "name": "dsh-server-manager",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Multi-server operations for DeepSeek Harness: live status, password/key/SSH-agent login, agent-callable exec, file transfer, release deploys and rollbacks, plus read-only QNAP, Synology and fnOS NAS monitoring over their web UIs.",
   "type": "module",
   "license": "MIT",

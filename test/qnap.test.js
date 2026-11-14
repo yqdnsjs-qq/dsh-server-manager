@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { probeQnap, qnapBaseUrl, qnapLogin } from '../src/qnap.js';
+import { probeQnap, qnapApps, qnapBaseUrl, qnapLogin } from '../src/qnap.js';
 
 const server = {
   id: 'nas',
@@ -54,6 +54,13 @@ test('qnapBaseUrl prefers baseUrl and defaults to port 88', () => {
   assert.equal(qnapBaseUrl(server), 'http://192.0.2.28:88');
 });
 
+test('qnapApps exposes the stable QTS application paths', () => {
+  const apps = qnapApps(server);
+  assert.deepEqual(apps.map(app => app.key), ['filestation', 'photo', 'container-station']);
+  assert.equal(apps[0].url, 'http://192.0.2.28:88/filestation/');
+  assert.equal(apps[2].url, 'http://192.0.2.28:88/container-station/');
+});
+
 test('probeQnap maps QTS system, memory and volumes into the status shape', async () => {
   const original = globalThis.fetch;
   globalThis.fetch = async (url) => {
@@ -83,6 +90,8 @@ test('probeQnap maps QTS system, memory and volumes into the status shape', asyn
     assert.equal(status.disks[0].percent, 75);
     assert.equal(status.docker.available, false);
     assert.equal(status.qnap.model, 'TS-453 Pro');
+    assert.equal(status.apps.length, 3);
+    assert.equal(status.apps[0].url, 'http://192.0.2.28:88/filestation/');
   } finally {
     globalThis.fetch = original;
   }
