@@ -33,7 +33,7 @@ versioned rollbacks even for static files (point nginx at `<root>/current`).
 ```text
 server_deploy(
   server="prod-web",
-  localPath="./shop",
+  localPath="D:/work/shop",
   remotePath="/opt/apps/shop",
   build="npm ci && npm run build",
   postCommands=["npm ci --omit=dev", "sudo systemctl restart shop.service"],
@@ -67,7 +67,7 @@ server_rollback(server="prod-web", remotePath="/opt/apps/shop",
 
 ```text
 server_transfer(server="staging", direction="upload",
-                localPath="./shop/docker-compose.yml",
+                localPath="D:/work/shop/docker-compose.yml",
                 remotePath="/opt/stacks/shop/docker-compose.yml")
 server_service(server="staging", manager="compose",
                composePath="/opt/stacks/shop/docker-compose.yml",
@@ -153,7 +153,7 @@ explain why instead of retrying blindly.
 If you already keep a `.dsh-server.json`-style map:
 
 ```text
-server_manage(action="import", path="./legacy-servers.json")
+server_manage(action="import", path="./legacy/.dsh-server.json")
 ```
 
 Then edit the imported entries to replace literal passwords with `env:` references. The panel

@@ -2,21 +2,12 @@
 
 This is the maintainer checklist for publishing `dsh-server-manager`.
 
-## 0. One-time: claim the name and repository
+## 0. Repository
 
-The scaffold uses `OWNER` as a placeholder in `package.json`, `README.md`, `README.zh.md`,
-`SECURITY.md` and the docs. Before the first release:
-
-1. Create the GitHub repository `dsh-server-manager`.
-2. Replace every `OWNER` occurrence:
-
-   ```sh
-   grep -rl OWNER . --exclude-dir=node_modules --exclude-dir=.git
-   ```
-
-3. Confirm the npm name is still available: `npm view dsh-server-manager version` should 404.
-4. If you publish under a scope, change `name` to `@scope/dsh-server-manager` and update the plugin
-   row `name` in `cordis.patch.yml` to match.
+The canonical repository is <https://github.com/yqdnsjs-qq/dsh-server-manager>. The npm package
+name is `dsh-server-manager`; before publishing check `npm view dsh-server-manager version` and
+confirm it is still available. If you publish under a scope, change `name` to
+`@scope/dsh-server-manager` and update the plugin row `name` in `cordis.patch.yml` to match.
 
 ## 1. Version and changelog
 

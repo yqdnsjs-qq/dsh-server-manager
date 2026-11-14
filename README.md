@@ -24,6 +24,7 @@ An agent that can write a project should be able to ship it. This plugin closes 
 
 No CI, no pipeline YAML, no copy-pasting `scp` commands.
 
+![Server Deck — fleet overview, node detail, PVE guests and live Docker containers](docs/assets/server-deck.png)
 
 ## Features
 
@@ -180,4 +181,4 @@ Tested against the DSH desktop `0.2.2-rc.x` line on Windows 11 with an Ubuntu 24
 
 [MIT](LICENSE) © dsh-server-manager contributors
 
-> Before publishing, replace the `OWNER` placeholder in `package.json`, README and docs with your GitHub account — see [RELEASING.md](RELEASING.md).
+> Repository: <https://github.com/yqdnsjs-qq/dsh-server-manager>. Release steps are in [RELEASING.md](RELEASING.md).

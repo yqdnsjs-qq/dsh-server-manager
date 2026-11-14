@@ -24,6 +24,7 @@
 
 不用搭 CI、不写流水线、不用手敲 `scp`。
 
+![服务器监控管理 — 集群总览、节点详情、PVE 虚拟机与实时 Docker 容器](docs/assets/server-deck.png)
 
 ## 功能
 
@@ -179,4 +180,4 @@ examples/   配置示例
 
 [MIT](LICENSE) © dsh-server-manager contributors
 
-> 开源发布前，请把 `package.json`、README 与 docs 里的 `OWNER` 占位符换成你的 GitHub 账号，步骤见 [RELEASING.md](RELEASING.md)。
+> 仓库地址：<https://github.com/yqdnsjs-qq/dsh-server-manager>；发布步骤见 [RELEASING.md](RELEASING.md)。

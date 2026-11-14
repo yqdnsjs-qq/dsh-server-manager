@@ -15,6 +15,7 @@
 
 import crypto from 'node:crypto';
 import { resolveServerSecrets } from './secrets.js';
+import { isNewerVersion } from './onepanel.js';
 
 export class FnosError extends Error {
   constructor(message, options = {}) {
@@ -37,6 +38,16 @@ export function fnosBaseUrl(server) {
   if (explicit !== '') return explicit;
   const secure = Number(server.port) === 443 || server.secure === true;
   return `${secure ? 'https' : 'http'}://${hostForUrl(server.host)}:${server.port}`;
+}
+
+/**
+ * fnOS keeps `systemUpdate.available` true after an in-place upgrade until its
+ * update daemon refreshes. Compare the version pair instead of trusting the
+ * stale flag, so an updated machine stops showing "update available".
+ */
+export function fnosUpdateAvailable(currentVersion, latestVersion) {
+  if (!currentVersion || !latestVersion) return false;
+  return isNewerVersion(latestVersion, currentVersion);
 }
 
 function wsUrlFor(baseUrl) {
@@ -348,7 +359,7 @@ export async function probeFnos(server, options = {}) {
 
     const currentVersion = version?.data?.trimVersion ?? null;
     const latestVersion = update?.data?.systemUpdate?.version ?? null;
-    const updateAvailable = update?.data?.systemUpdate?.available === true;
+    const updateAvailable = fnosUpdateAvailable(currentVersion, latestVersion);
     const volumes = Array.isArray(storage?.array) ? storage.array : [];
     const disks = volumes.map(volume => {
       const total = Number(volume.fssize ?? volume.size ?? 0);

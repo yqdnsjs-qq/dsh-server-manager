@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] — 2026-11-14
+
+### Fixed
+
+- The fnOS card no longer trusts the update daemon's stale
+  `systemUpdate.available` flag. It compares the running and latest versions,
+  so a machine that has already been upgraded shows **up to date** instead of
+  offering the same version again.
+- The fnOS card has an explicit **Refresh** button, and the regular auto-refresh
+  now clears the stale badge as soon as the new probe lands.
+
+### Changed
+
+- 96 tests (up from 95).
+
 ## [1.0.3] — 2026-11-13
 
 ### Added

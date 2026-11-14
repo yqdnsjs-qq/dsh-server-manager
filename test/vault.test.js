@@ -13,10 +13,10 @@ function makeVault() {
 
 test('vault encrypts values and never writes plaintext', () => {
   const vault = makeVault();
-  vault.set('demo-oracle.password', 's3cr3t-value');
-  assert.equal(vault.get('demo-oracle.password'), 's3cr3t-value');
-  assert.equal(vault.has('demo-oracle.password'), true);
-  assert.deepEqual(vault.list(), ['demo-oracle.password']);
+  vault.set('demo.password', 's3cr3t-value');
+  assert.equal(vault.get('demo.password'), 's3cr3t-value');
+  assert.equal(vault.has('demo.password'), true);
+  assert.deepEqual(vault.list(), ['demo.password']);
   assert.equal(readFileSync(vault.file, 'utf8').includes('s3cr3t-value'), false);
 });
 
