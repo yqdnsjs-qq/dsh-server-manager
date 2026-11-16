@@ -70,11 +70,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/demo-user-qq/dsh-server-manager.git"
+    "url": "git+https://github.com/yqdnsjs-qq/dsh-server-manager.git"
   },
-  "homepage": "https://github.com/demo-user-qq/dsh-server-manager#readme",
+  "homepage": "https://github.com/yqdnsjs-qq/dsh-server-manager#readme",
   "bugs": {
-    "url": "https://github.com/demo-user-qq/dsh-server-manager/issues"
+    "url": "https://github.com/yqdnsjs-qq/dsh-server-manager/issues"
   },
   "publishConfig": {
     "access": "public",

@@ -5,7 +5,7 @@ Thanks for taking the time to improve `dsh-server-manager`.
 ## Development setup
 
 ```sh
-git clone https://github.com/demo-user-qq/dsh-server-manager.git
+git clone https://github.com/yqdnsjs-qq/dsh-server-manager.git
 cd dsh-server-manager
 npm install --ignore-scripts   # only ssh2 is needed at runtime
 npm test
