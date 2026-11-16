@@ -199,7 +199,12 @@ export function normalizeServer(raw, defaults = {}, options = {}) {
     sudoPassword,
     agent,
     group: String(input.group ?? '').trim() || 'default',
-    tags: Array.isArray(input.tags) ? input.tags.map(tag => String(tag)).filter(Boolean) : [],
+    tags: Array.isArray(input.tags)
+      ? [...new Map(input.tags
+        .map(tag => String(tag).trim())
+        .filter(Boolean)
+        .map(tag => [tag.toLowerCase(), tag])).values()]
+      : [],
     notes: String(input.notes ?? '').trim(),
     enabled: input.enabled !== false,
     policy,

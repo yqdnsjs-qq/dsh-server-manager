@@ -153,7 +153,7 @@ explain why instead of retrying blindly.
 If you already keep a `.dsh-server.json`-style map:
 
 ```text
-server_manage(action="import", path="./legacy/.dsh-server.json")
+server_manage(action="import", path="./legacy-servers.json")
 ```
 
 Then edit the imported entries to replace literal passwords with `env:` references. The panel

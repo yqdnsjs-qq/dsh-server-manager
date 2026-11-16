@@ -121,6 +121,7 @@ test('client bundle exposes zh and en dictionaries with the same keys', () => {
     'form.transport', 'form.transportQnap', 'form.transportSynology', 'form.transportFnos',
     'form.baseUrl', 'detail.openQts', 'detail.openDsm', 'detail.openFnos',
     'detail.qnapReadOnly', 'detail.webReadOnly',
+    'form.groupNew', 'form.customGroup', 'form.tagsHint', 'form.addTag',
   ]) {
     assert.ok(zhKeys.includes(key), `dictionary contains ${key}`);
   }
@@ -176,6 +177,15 @@ test('client bundle uses the packaged logo and supports switching NAS volumes', 
   assert.match(source, /const LogoMark/);
   assert.match(source, /smx-disk-chip/);
   assert.match(source, /setDiskIndex/);
+});
+
+test('client bundle uses grouped server options instead of free-text group and tag entry', () => {
+  assert.match(source, /const groupOptions = useMemo/);
+  assert.match(source, /const tagOptions = useMemo/);
+  assert.match(source, /map\.get\(key\)\.list\.push/);
+  assert.match(source, /form\.groupNew/);
+  assert.match(source, /smx-tag-picker/);
+  assert.match(source, /smx-tag-chip/);
 });
 
 test('client bundle no longer depends on the right-sidebar tab service', () => {

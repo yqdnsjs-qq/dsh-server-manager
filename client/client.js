@@ -185,8 +185,13 @@ window.__ModuleLoader__.load({
       "form.sudoPassword": "sudo 密码",
       "form.sudoHint": "可选；和登录密码不同时填写。",
       "form.group": "分组",
+      "form.groupHint": "从已有分组选择；需要新分组时点“新建分组”。",
+      "form.groupNone": "未分组",
+      "form.groupNew": "新建分组…",
+      "form.customGroup": "新分组名称",
       "form.tags": "标签",
-      "form.tagsHint": "用逗号分隔。",
+      "form.tagsHint": "点击已有标签；也可以输入新标签后按回车。",
+      "form.addTag": "输入新标签后回车",
       "form.notes": "备注",
       "form.policy": "安全策略",
       "form.readOnly": "只读模式（拦截写命令）",
@@ -207,7 +212,7 @@ window.__ModuleLoader__.load({
       "form.transportSynology": "群晖 DSM 网页",
       "form.transportFnos": "飞牛 fnOS 网页",
       "form.baseUrl": "网页地址",
-      "form.baseUrlHint": "可选；例如 http://192.168.8.28:88。留空按主机和端口拼。",
+      "form.baseUrlHint": "可选；例如 http://203.0.113.28:88。留空按主机和端口拼。",
       "form.required": "必填",
       "settings.title": "设置",
       "settings.auto": "自动刷新",
@@ -298,7 +303,7 @@ window.__ModuleLoader__.load({
       "docker.upgrading": "正在升级 {name}…",
       "docker.service": "服务",
       "form.onepanel": "1Panel 入口地址",
-      "form.onepanelHint": "可选，例如 http://192.168.8.33:33333/entrance；留空则按检测到的端口生成。",
+      "form.onepanelHint": "可选，例如 http://203.0.113.33:33333/entrance；留空则按检测到的端口生成。",
       "pve.title": "PVE 虚拟化",
       "pve.readonly": "只读",
       "pve.version": "PVE {version}",
@@ -524,8 +529,13 @@ window.__ModuleLoader__.load({
       "form.sudoPassword": "sudo password",
       "form.sudoHint": "Optional; fill when it differs from the login password.",
       "form.group": "Group",
+      "form.groupHint": "Pick an existing group, or choose “New group”.",
+      "form.groupNone": "No group",
+      "form.groupNew": "New group…",
+      "form.customGroup": "New group name",
       "form.tags": "Tags",
-      "form.tagsHint": "Comma separated.",
+      "form.tagsHint": "Click existing tags, or type a new tag and press Enter.",
+      "form.addTag": "New tag, then Enter",
       "form.notes": "Notes",
       "form.policy": "Safety policy",
       "form.readOnly": "Read-only mode (block writes)",
@@ -546,7 +556,7 @@ window.__ModuleLoader__.load({
       "form.transportSynology": "Synology DSM web",
       "form.transportFnos": "fnOS web",
       "form.baseUrl": "Web address",
-      "form.baseUrlHint": "Optional, for example http://192.168.8.28:88. Built from host and port when empty.",
+      "form.baseUrlHint": "Optional, for example http://203.0.113.28:88. Built from host and port when empty.",
       "form.required": "Required",
       "settings.title": "Settings",
       "settings.auto": "Auto refresh",
@@ -637,7 +647,7 @@ window.__ModuleLoader__.load({
       "docker.upgrading": "Upgrading {name}…",
       "docker.service": "Service",
       "form.onepanel": "1Panel entrance URL",
-      "form.onepanelHint": "Optional, e.g. http://192.168.8.33:33333/entrance. Leave empty to derive the URL from the detected port.",
+      "form.onepanelHint": "Optional, e.g. http://203.0.113.33:33333/entrance. Leave empty to derive the URL from the detected port.",
       "pve.title": "Proxmox VE",
       "pve.readonly": "Read-only",
       "pve.version": "PVE {version}",
@@ -1204,7 +1214,7 @@ window.__ModuleLoader__.load({
     const WEB_DEFAULT_PORTS = { qnap: "88", synology: "5000", fnos: "5666" };
     const WEB_NAME = { qnap: "Qnap", synology: "Synology", fnos: "Fnos" };
 
-    function emptyForm(server) {
+    function emptyForm(server, groupOptions = []) {
       const source = server || {};
       const transport = source.transport || "ssh";
       const isWeb = transport !== "ssh";
@@ -1221,7 +1231,7 @@ window.__ModuleLoader__.load({
         passphrase: "",
         sudoPassword: "",
         privateKeyPath: source.privateKeyPath || "",
-        group: source.group || "",
+        group: canonicalLabel(source.group, groupOptions),
         tags: Array.isArray(source.tags) ? source.tags.join(", ") : "",
         notes: source.notes || "",
         readOnly: Boolean(source.policy?.readOnly),
@@ -1242,9 +1252,36 @@ window.__ModuleLoader__.load({
         .slice(0, 64);
     }
 
-    function ServerForm({ mode, server, onSubmit, onClose, saving }) {
-      const [form, setForm] = useState(() => emptyForm(server));
+    function uniqueLabels(values) {
+      const seen = new Map();
+      for (const raw of values || []) {
+        const value = String(raw || "").trim();
+        if (!value) continue;
+        const key = value.toLowerCase();
+        if (!seen.has(key)) seen.set(key, value);
+      }
+      return [...seen.values()].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+    }
+
+    function canonicalLabel(value, options) {
+      const candidate = String(value || "").trim();
+      if (!candidate) return "";
+      const match = (options || []).find((item) => String(item).toLowerCase() === candidate.toLowerCase());
+      return match || candidate;
+    }
+
+    function parseTagList(value) {
+      return String(value || "")
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+    }
+
+    function ServerForm({ mode, server, onSubmit, onClose, saving, groupOptions = [], tagOptions = [] }) {
+      const [form, setForm] = useState(() => emptyForm(server, groupOptions));
       const [error, setError] = useState("");
+      const [customGroup, setCustomGroup] = useState(false);
+      const [tagDraft, setTagDraft] = useState("");
       const set = (field) => (event) => {
         const target = event.target;
         const value = target.type === "checkbox" ? target.checked : target.value;
@@ -1264,6 +1301,50 @@ window.__ModuleLoader__.load({
               : prev.port,
           };
         });
+      };
+
+      const groupChoices = useMemo(() => {
+        const values = uniqueLabels(groupOptions);
+        const current = form.group.trim();
+        if (current && !values.some((value) => value.toLowerCase() === current.toLowerCase())) values.push(current);
+        return values.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+      }, [groupOptions, form.group]);
+
+      const tagChoices = useMemo(
+        () => uniqueLabels([...tagOptions, ...parseTagList(form.tags)]),
+        [tagOptions, form.tags],
+      );
+
+      const selectedTags = new Set(parseTagList(form.tags).map((tag) => tag.toLowerCase()));
+
+      const toggleTag = (tag) => {
+        const next = selectedTags.has(tag.toLowerCase())
+          ? parseTagList(form.tags).filter((item) => item.toLowerCase() !== tag.toLowerCase())
+          : [...parseTagList(form.tags), tag];
+        setForm((prev) => ({ ...prev, tags: next.join(", ") }));
+      };
+
+      const addTagDraft = () => {
+        const draft = tagDraft.trim();
+        if (!draft) return;
+        const next = [...parseTagList(form.tags)];
+        for (const part of draft.split(",")) {
+          const tag = part.trim();
+          if (tag && !next.some((item) => item.toLowerCase() === tag.toLowerCase())) next.push(tag);
+        }
+        setForm((prev) => ({ ...prev, tags: next.join(", ") }));
+        setTagDraft("");
+      };
+
+      const setGroup = (event) => {
+        const value = event.target.value;
+        if (value === "__new__") {
+          setCustomGroup(true);
+          setForm((prev) => ({ ...prev, group: "" }));
+          return;
+        }
+        setCustomGroup(false);
+        setForm((prev) => ({ ...prev, group: value }));
       };
 
       const submit = async (event) => {
@@ -1322,14 +1403,78 @@ window.__ModuleLoader__.load({
       const portPlaceholder = isWeb ? WEB_DEFAULT_PORTS[form.transport] : "22";
       const usernamePlaceholder = isWeb ? "admin" : "root";
 
-      const field = (label, control, hint) =>
+      const groupField = field(
+        t("form.group"),
         h(
+          "div",
+          { className: "smx-picker" },
+          h(
+            "select",
+            { value: customGroup ? "" : form.group, onChange: setGroup },
+            h("option", { value: "" }, t("form.groupNone")),
+            ...groupChoices.map((group) => h("option", { value: group }, group)),
+            h("option", { value: "__new__" }, t("form.groupNew")),
+          ),
+          customGroup
+            ? h("input", {
+                value: form.group,
+                onChange: set("group"),
+                placeholder: t("form.customGroup"),
+                autoFocus: true,
+              })
+            : null,
+        ),
+        t("form.groupHint"),
+      );
+
+      const tagsField = field(
+        t("form.tags"),
+        h(
+          "div",
+          { className: "smx-tag-picker" },
+          ...tagChoices.map((tag) =>
+            h(
+              "button",
+              {
+                type: "button",
+                key: `tag-${tag}`,
+                className: `smx-tag-chip${selectedTags.has(tag.toLowerCase()) ? " is-on" : ""}`,
+                "aria-pressed": selectedTags.has(tag.toLowerCase()),
+                onClick: () => toggleTag(tag),
+              },
+              tag,
+            ),
+          ),
+          h(
+            "div",
+            { className: "smx-tag-add" },
+            h("input", {
+              value: tagDraft,
+              onChange: (event) => setTagDraft(event.target.value),
+              onKeyDown: (event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  addTagDraft();
+                }
+              },
+              onBlur: addTagDraft,
+              placeholder: t("form.addTag"),
+            }),
+            h("button", { type: "button", className: "smx-tag-add-btn", onClick: addTagDraft }, "+"),
+          ),
+        ),
+        t("form.tagsHint"),
+      );
+
+      function field(label, control, hint) {
+        return h(
           "label",
           { className: "smx-field" },
           h("span", null, label),
           control,
           hint ? h("small", null, hint) : null,
         );
+      }
 
       return h(
         "form",
@@ -1354,7 +1499,7 @@ window.__ModuleLoader__.load({
           field(t("form.port"), h("input", { value: form.port, onChange: set("port"), inputMode: "numeric", placeholder: portPlaceholder })),
           field(t("form.username"), h("input", { value: form.username, onChange: set("username"), placeholder: usernamePlaceholder })),
           isWeb
-            ? field(t("form.baseUrl"), h("input", { value: form.baseUrl, onChange: set("baseUrl"), placeholder: form.transport === "synology" ? "https://192.168.8.26:5001" : form.transport === "fnos" ? "http://192.168.8.69:5666" : "http://192.168.8.28:88" }), t("form.baseUrlHint"))
+            ? field(t("form.baseUrl"), h("input", { value: form.baseUrl, onChange: set("baseUrl"), placeholder: form.transport === "synology" ? "https://203.0.113.26:5001" : form.transport === "fnos" ? "http://203.0.113.69:5666" : "http://203.0.113.28:88" }), t("form.baseUrlHint"))
             : field(
                 t("form.auth"),
                 h(
@@ -1371,8 +1516,8 @@ window.__ModuleLoader__.load({
               "div",
               { className: "smx-form-grid" },
               field(t("form.password"), h("input", { type: "password", value: form.password, onChange: set("password"), autoComplete: "new-password", placeholder: "NAS admin password" }), t("form.passwordHint")),
-              field(t("form.group"), h("input", { value: form.group, onChange: set("group"), placeholder: "NAS" })),
-              field(t("form.tags"), h("input", { value: form.tags, onChange: set("tags"), placeholder: form.transport === "synology" ? "synology, nas" : form.transport === "fnos" ? "fnos, nas" : "qnap, nas" }), t("form.tagsHint")),
+              groupField,
+              tagsField,
             )
           : h(
               "div",
@@ -1386,8 +1531,8 @@ window.__ModuleLoader__.load({
                 ? field(t("form.passphrase"), h("input", { type: "password", value: form.passphrase, onChange: set("passphrase"), autoComplete: "new-password", placeholder: "env:KEY_PASSPHRASE" }), t("form.passphraseHint"))
                 : null,
               field(t("form.sudoPassword"), h("input", { type: "password", value: form.sudoPassword, onChange: set("sudoPassword"), autoComplete: "new-password", placeholder: "env:SUDO_PASSWORD" })),
-              field(t("form.group"), h("input", { value: form.group, onChange: set("group"), placeholder: "prod" })),
-              field(t("form.tags"), h("input", { value: form.tags, onChange: set("tags"), placeholder: "web, eu" }), t("form.tagsHint")),
+              groupField,
+              tagsField,
               field(
                 t("form.hostKeyPolicy"),
                 h(
@@ -1398,7 +1543,7 @@ window.__ModuleLoader__.load({
                   h("option", { value: "insecure" }, t("form.insecure")),
                 ),
               ),
-              field(t("form.onepanel"), h("input", { value: form.onepanelUrl, onChange: set("onepanelUrl"), placeholder: "http://192.168.8.33:33333/entrance" }), t("form.onepanelHint")),
+              field(t("form.onepanel"), h("input", { value: form.onepanelUrl, onChange: set("onepanelUrl"), placeholder: "http://203.0.113.33:33333/entrance" }), t("form.onepanelHint")),
             ),
         h("div", { className: "smx-form-grid is-wide" },
           field(t("form.notes"), h("textarea", { rows: 2, value: form.notes, onChange: set("notes") })),
@@ -2852,14 +2997,27 @@ window.__ModuleLoader__.load({
         });
       }, [agg, snap]);
 
+      const groupOptions = useMemo(
+        () => uniqueLabels(servers.map((server) => server.group)),
+        [servers],
+      );
+
+      const tagOptions = useMemo(
+        () => uniqueLabels(servers.flatMap((server) => (Array.isArray(server.tags) ? server.tags : []))),
+        [servers],
+      );
+
       const groups = useMemo(() => {
         const map = new Map();
         for (const server of servers) {
-          const key = server.group || "";
-          if (!map.has(key)) map.set(key, []);
-          map.get(key).push(server);
+          const raw = String(server.group || "").trim();
+          const key = raw.toLowerCase();
+          if (!map.has(key)) map.set(key, { label: raw, list: [] });
+          map.get(key).list.push(server);
         }
-        return [...map.entries()];
+        return [...map.values()]
+          .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }))
+          .map((entry) => [entry.label, entry.list]);
       }, [servers]);
 
       const stats = [
@@ -3138,6 +3296,8 @@ window.__ModuleLoader__.load({
               h(ServerForm, {
                 mode: editor.mode,
                 server: editor.server,
+                groupOptions,
+                tagOptions,
                 saving,
                 onClose: () => setEditor(null),
                 onSubmit: saveServer,
@@ -3579,6 +3739,15 @@ window.__ModuleLoader__.load({
       .smx-field input:focus, .smx-field select:focus, .smx-field textarea:focus { border-color: rgba(217, 179, 108, .55); }
       .smx-field textarea { resize: vertical; font-family: "SFMono-Regular", Consolas, monospace; font-size: 11px; }
       .smx-field small { color: #6f7482; font-size: 9.5px; line-height: 1.35; }
+.smx-picker { display: grid; gap: 6px; }
+.smx-tag-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.smx-tag-chip { border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .035); color: #aeb3c2; border-radius: 999px; padding: 3px 9px; font-size: 10.5px; cursor: pointer; }
+.smx-tag-chip:hover { border-color: rgba(217, 179, 108, .55); color: #d9b36c; }
+.smx-tag-chip.is-on { border-color: rgba(217, 179, 108, .8); color: #f0d6a4; background: rgba(217, 179, 108, .14); }
+.smx-tag-add { display: flex; gap: 6px; width: 100%; margin-top: 2px; }
+.smx-tag-add input { flex: 1; min-width: 0; }
+.smx-tag-add-btn { border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .035); color: #aeb3c2; border-radius: 6px; width: 34px; cursor: pointer; }
+.smx-tag-add-btn:hover { border-color: rgba(217, 179, 108, .55); color: #d9b36c; }
       .smx-form-section { margin: 14px 0 8px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #6f7482; }
       .smx-form-checks { display: flex; gap: 18px; margin-bottom: 10px; }
       .smx-check { display: flex; align-items: center; gap: 7px; color: #c3c7d1; font-size: 11.5px; cursor: pointer; }

@@ -220,7 +220,7 @@ Deny patterns are regular expressions; invalid ones fail closed with an explanat
 ## Importing an old `.dsh-server.json`
 
 ```text
-server_manage(action="import", path="./legacy/.dsh-server.json")
+server_manage(action="import", path="./legacy-servers.json")
 ```
 
 Existing ids are skipped, invalid entries are reported in the count. Imported inline passwords are moved into the encrypted vault automatically and stored as `vault:` references.

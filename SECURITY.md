@@ -16,7 +16,7 @@ here as potentially remote-code-execution-adjacent, even when they look small.
 
 Use GitHub's private vulnerability reporting:
 
-<https://github.com/yqdnsjs-qq/dsh-server-manager/security/advisories/new>
+<https://github.com/demo-user-qq/dsh-server-manager/security/advisories/new>
 
 If that is unavailable, contact the maintainers listed in `package.json` through their GitHub
 profile and ask for a private channel.

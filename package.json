@@ -1,6 +1,6 @@
 {
   "name": "dsh-server-manager",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Multi-server operations for DeepSeek Harness: live status, password/key/SSH-agent login, agent-callable exec, file transfer, release deploys and rollbacks, plus read-only QNAP, Synology and fnOS NAS monitoring over their web UIs.",
   "type": "module",
   "license": "MIT",
@@ -70,11 +70,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yqdnsjs-qq/dsh-server-manager.git"
+    "url": "git+https://github.com/demo-user-qq/dsh-server-manager.git"
   },
-  "homepage": "https://github.com/yqdnsjs-qq/dsh-server-manager#readme",
+  "homepage": "https://github.com/demo-user-qq/dsh-server-manager#readme",
   "bugs": {
-    "url": "https://github.com/yqdnsjs-qq/dsh-server-manager/issues"
+    "url": "https://github.com/demo-user-qq/dsh-server-manager/issues"
   },
   "publishConfig": {
     "access": "public",

@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] — 2026-11-17
+
+### Fixed
+
+- Server groups are now merged case-insensitively, so `LAN` and `lan` no longer
+  appear as two separate rail groups.
+- The server form now picks groups and tags from values already in use instead
+  of forcing free-text entry. A new group can still be created explicitly, and
+  new tags can be added with Enter.
+
+### Changed
+
+- 101 tests (up from 100).
+
 ## [1.0.5] — 2026-11-14
 
 ### Added
